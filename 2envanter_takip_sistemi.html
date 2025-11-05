@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Envanter Takip Sistemi</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      /* 🔹 Silinmiş (pasif) kayıtları gri göster */
+      .inactive-row {
+        background-color: #f5f5f5;
+        color: #999;
+      }
+      /* 🔹 Filtre menüsü stil iyileştirmesi */
+      #filterActive {
+        border: 1px solid var(--border, #ccc);
+        border-radius: 6px;
+        padding: 6px 8px;
+        background: var(--bg, #fff);
+        cursor: pointer;
+      }
+    </style>
+    <!-- 🔹 Tabulator CSS -->
+  </head>
+
+  <body>
+    <div class="theme-toggle" id="themeToggle" title="Tema Değiştir">
+      🌗 Tema
+    </div>
+
+    <!-- LOGIN -->
+    <section id="loginShell">
+      <div class="card login-card">
+        <div class="login-badge">ULAK HABERLEŞME A.Ş.</div>
+        <div class="login-logo">
+          <img src="images/logo.png" alt="Logo" />
+        </div>
+        <h1>Kullanıcı Girişi</h1>
+        <form id="loginForm" autocomplete="off">
+          <div class="field">
+            <label for="loginUser">Kullanıcı Adı</label>
+            <input
+              id="loginUser"
+              type="text"
+              placeholder="Kullanıcı Adı"
+              autofocus
+            />
+          </div>
+          <div class="field">
+            <label for="loginPass">Şifre</label>
+            <div style="position: relative">
+              <input id="loginPass" type="password" placeholder="Şifre" />
+              <button
+                type="button"
+                id="pwToggle"
+                class="outline"
+                style="
+                  position: absolute;
+                  top: 50%;
+                  right: 6px;
+                  transform: translateY(-50%);
+                  padding: 4px 10px;
+                  font-size: 12px;
+                  min-width: auto;
+                "
+              >
+                Göster
+              </button>
+            </div>
+          </div>
+          <div class="field">
+            <button
+              type="submit"
+              id="loginBtn"
+              style="width: 100%; font-size: 16px; padding: 14px 18px"
+            >
+              Giriş Yap
+            </button>
+          </div>
+          <div
+            id="loginStatus"
+            class="inline-hint"
+            aria-live="polite"
+            style="min-height: 18px"
+          ></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- APP -->
+    <section id="appShell">
+      <header class="app-topbar">
+        <div class="brand-title">
+          <strong>Envanter Takip Sistemi</strong>
+        </div>
+        <div class="flex gap-s center">
+          <button id="btnUserMgmt" class="outline">Kullanıcı Yönetimi</button>
+          <button id="btnLogs" class="outline">Loglar</button>
+
+          <div class="user-chip" id="userChip">
+            <span id="chipName">user</span>
+            <span class="user-role-tag" id="chipRole"></span>
+            <div class="user-menu hidden" id="userMenu">
+              <button id="menuHome">Ana Sayfa</button>
+              <button id="menuUsers">Kullanıcı Yönetimi</button>
+              <button id="menuLogs">Loglar</button>
+
+              <hr />
+              <button id="menuLogout" class="danger">Çıkış</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="app-main" id="homeView">
+        <div class="inventory-wrapper">
+          <!-- FORM PANEL -->
+          <!-- 🔹 ENVANTER KAYDI PANELİ -->
+          <div class="panel slide-panel" id="panelForm">
+            <button
+              id="toggleSlideBtn"
+              class="toggle-slide-btn"
+              title="Paneli Aç/Kapat"
+            ></button>
+            <h2>Envanter Kaydı</h2>
+
+            <div class="field-grid" id="coreFields">
+              <div class="field">
+                <label for="f_serialNumber">Seri No</label>
+                <input id="f_serialNumber" type="text" placeholder="Seri No" />
+              </div>
+
+              <div class="field">
+                <label for="f_brand">Marka</label>
+                <div class="combo">
+                  <input
+                    id="f_brand"
+                    type="text"
+                    placeholder="Marka"
+                    autocomplete="off"
+                  />
+                  <button type="button" class="combo-drop" data-field="brand">
+                    ▾
+                  </button>
+                  <div class="combo-list" id="brandOptions"></div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="f_itemName">Malzeme Adı</label>
+                <div class="combo">
+                  <input
+                    id="f_itemName"
+                    type="text"
+                    placeholder="Malzeme Adı"
+                    autocomplete="off"
+                  />
+                  <button
+                    type="button"
+                    class="combo-drop"
+                    data-field="itemName"
+                  >
+                    ▾
+                  </button>
+                  <div class="combo-list" id="itemNameOptions"></div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="f_itemGroup">Malzeme Grubu</label>
+                <div class="combo">
+                  <input
+                    id="f_itemGroup"
+                    type="text"
+                    placeholder="Malzeme Grubu"
+                    autocomplete="off"
+                  />
+                  <button
+                    type="button"
+                    class="combo-drop"
+                    data-field="itemGroup"
+                  >
+                    ▾
+                  </button>
+
+                  <div class="combo-list" id="groupOptions"></div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="f_model">Model</label>
+                <div class="combo">
+                  <input
+                    id="f_model"
+                    type="text"
+                    placeholder="Model"
+                    autocomplete="off"
+                  />
+                  <button type="button" class="combo-drop" data-field="model">
+                    ▾
+                  </button>
+                  <div class="combo-list" id="modelOptions"></div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="f_stockInDate">Stok Giriş Tarihi</label>
+                <input id="f_stockInDate" type="date" />
+              </div>
+
+              <div class="field">
+                <label for="f_stockOutDate">Stok Çıkış Tarihi</label>
+                <input id="f_stockOutDate" type="date" />
+              </div>
+
+              <div class="field">
+                <label for="f_description">Açıklama</label>
+                <textarea id="f_description" placeholder="Açıklama"></textarea>
+              </div>
+
+              <div class="field">
+                <label for="f_assignedProject">Tahsis Edilen Proje</label>
+                <input
+                  id="f_assignedProject"
+                  type="text"
+                  placeholder="Tahsis Edilen Proje"
+                />
+              </div>
+
+              <div class="field">
+                <label for="f_assignedPerson">Tahsis Edilen Kişi</label>
+                <input
+                  id="f_assignedPerson"
+                  type="text"
+                  placeholder="Tahsis Edilen Kişi"
+                />
+              </div>
+
+              <div class="field">
+                <label for="f_status">Durum</label>
+                <select id="f_status">
+                  <option value="0">Depoda</option>
+                  <option value="1">Projede</option>
+                  <option value="2">Arızalı - Onarım</option>
+                  <option value="3">Arızalı - Kullanım Dışı</option>
+                  <option value="4">Stoktan Çıkarıldı</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="inline-actions">
+              <button id="btnSave">Kaydet</button>
+              <button id="btnClear" type="button" class="secondary">
+                Temizle
+              </button>
+            </div>
+          </div>
+
+          <!-- HISTORY OVERLAY -->
+          <div class="overlay-panel" id="historyPanel">
+            <div class="overlay-card">
+              <header>
+                <div class="flex center gap-s">
+                  <button class="outline" id="historyBack">
+                    Ana Sayfaya Dön
+                  </button>
+                  <h2 style="margin: 0">Envanter Tarihçesi</h2>
+                </div>
+                <button id="closeHistoryPanel" class="outline">Kapat</button>
+              </header>
+              <div class="overlay-body" style="gap: 16px">
+                <div id="historyContainer"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LIST PANEL -->
+          <div class="panel" id="panelList">
+            <div class="flex space-between center">
+              <h2 style="margin-bottom: 2px">
+                Envanter Listesi
+                <span class="badge-count" id="invCount">0</span>
+              </h2>
+              <div class="filter-bar">
+                <input
+                  id="searchBox"
+                  type="text"
+                  placeholder="Ara (Seri / Ad / Marka ...)"
+                />
+                <select id="filterActive" style="padding: 6px; font-size: 13px">
+                  <option value="active" selected>Aktif Kayıtlar</option>
+                  <option value="inactive">Silinmiş Kayıtlar</option>
+                  <option value="all">Tüm Kayıtlar</option>
+                </select>
+                <button id="btnExport" class="outline" style="font-size: 13px">
+                  Dışa Aktar
+                </button>
+                <button id="btnImport" class="outline" style="font-size: 13px">
+                  İçe Al
+                </button>
+                <input
+                  id="importFile"
+                  type="file"
+                  accept=".xlsx,.xls"
+                  style="display: none"
+                />
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table id="invTable">
+                <thead id="invHead"></thead>
+                <tbody id="invBody"></tbody>
+              </table>
+            </div>
+
+            <!-- 📌 Pagination -->
+            <div
+              class="pagination"
+              style="
+                margin-top: 12px;
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+              "
+            >
+              <button id="prevPage">Önceki</button>
+              <span id="pageInfo">Sayfa 1 / 1</span>
+              <button id="nextPage">Sonraki</button>
+            </div>
+            <p id="pageSummary" class="page-summary"></p>
+          </div>
+        </div>
+      </main>
+    </section>
+
+    <div class="overlay-panel" id="userPanel">
+      <div class="overlay-card">
+        <header>
+          <div class="flex center gap-s">
+            <button class="outline" id="userBack">Ana Sayfaya Dön</button>
+            <h2 style="margin: 0">Kullanıcı Yönetimi</h2>
+          </div>
+          <button id="closeUserPanel" class="outline">Kapat</button>
+        </header>
+
+        <div class="overlay-body">
+          <div class="user-form-grid" id="userFormFields">
+            <div class="field">
+              <label>Kullanıcı Adı</label>
+              <input
+                type="text"
+                name="username"
+                placeholder="Kullanıcı adı girin"
+              />
+            </div>
+
+            <div class="field">
+              <label>Şifre</label>
+              <input
+                type="password"
+                name="password"
+                placeholder="Şifre girin"
+              />
+            </div>
+
+            <div class="field">
+              <label>Rol</label>
+              <select name="role">
+                <option value="1">Admin</option>
+                <option value="2">Constructor</option>
+                <option value="3" selected>Viewer</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 🔹 Yetkiler + Butonlar Yan Yana -->
+          <div
+            class="perms-actions-row"
+            style="
+              display: flex;
+              align-items: flex-start;
+              justify-content: space-between;
+              flex-wrap: wrap;
+              gap: 20px;
+            "
+          >
+            <!-- 🔹 Yetkiler -->
+            <div class="perms-block" style="flex: 1 1 60%">
+              <span class="perms-label">Yetkiler</span>
+              <div class="perms-row">
+                <label class="perm-item">
+                  <input type="checkbox" name="canInventory" />
+                  <span class="perm-box">✔</span> Envanter
+                </label>
+                <label class="perm-item">
+                  <input type="checkbox" name="canLogs" />
+                  <span class="perm-box">✔</span> Loglar
+                </label>
+                <label class="perm-item">
+                  <input type="checkbox" name="canUsers" />
+                  <span class="perm-box">✔</span> Kullanıcı Yönetimi
+                </label>
+              </div>
+            </div>
+
+            <!-- 🔹 Sağda butonlar -->
+            <div
+              class="user-actions-inline"
+              style="
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                gap: 16px;
+                margin-top: 10px;
+                transform: translateY(8px);
+              "
+            >
+              <button id="btnSaveUser">Kullanıcı Kaydet</button>
+              <button id="btnResetUserForm" type="button" class="secondary">
+                Form Temizle
+              </button>
+            </div>
+          </div>
+
+          <h3 style="margin: 4px 0 2px; font-size: 18px">Kullanıcı Listesi</h3>
+
+          <div
+            class="table-container"
+            style="border-radius: 18px; margin-top: -6px"
+          >
+            <table class="user-table" style="min-width: 600px">
+              <thead>
+                <tr>
+                  <th>Kullanıcı</th>
+                  <th>Rol</th>
+                  <th>Yetkiler</th>
+                  <th>İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="userListBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOG OVERLAY -->
+    <div class="overlay-panel" id="logPanel">
+      <div class="overlay-card">
+        <header>
+          <div class="flex center gap-s">
+            <button class="outline" id="logsBack">Ana Sayfaya Dön</button>
+            <h2 style="margin: 0">İşlem Logları</h2>
+          </div>
+          <div class="flex gap-s">
+            <button id="btnClearLogs" class="outline" style="font-size: 13px">
+              Logları Temizle
+            </button>
+            <button id="closeLogs" class="outline">Kapat</button>
+          </div>
+        </header>
+        <div class="overlay-body" style="gap: 16px">
+          <input
+            id="logSearch"
+            placeholder="Log ara (kullanıcı / metin / tarih)..."
+          />
+          <ul class="log-list" id="logList"></ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("click", (e) => {
+        document.querySelectorAll(".combo-list.open").forEach((l) => {
+          if (!l.contains(e.target) && !l.parentNode.contains(e.target))
+            l.classList.remove("open");
+        });
+      });
+
+      function enforceMenuPermissions() {
+        if (!window.currentUser) return;
+        const role = window.currentUser.role?.toLowerCase();
+
+        if (role !== "admin" && !window.currentUser.canUsers) {
+          document.getElementById("btnUserMgmt").style.display = "none";
+          document.getElementById("menuUsers").style.display = "none";
+        }
+        if (role !== "admin" && !window.currentUser.canLogs) {
+          document.getElementById("btnLogs").style.display = "none";
+          document.getElementById("menuLogs").style.display = "none";
+        }
+      }
+      window.enforceMenuPermissions = enforceMenuPermissions;
+    </script>
+
+    <script src="js/config.js"></script>
+    <script src="js/inventory.js"></script>
+    <script src="js/user.js"></script>
+    <script src="js/log.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/theme.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // 🔹 Envanter tarihçesi kapatma ve geri dön
+        const historyPanel = document.getElementById("historyPanel");
+        document
+          .getElementById("closeHistoryPanel")
+          ?.addEventListener("click", () => {
+            historyPanel.style.display = "none";
+          });
+        document
+          .getElementById("historyBack")
+          ?.addEventListener("click", () => {
+            historyPanel.style.display = "none";
+          });
+
+        // 🔹 Kullanıcı yönetimi kapatma ve geri dön
+        const userPanel = document.getElementById("userPanel");
+        document
+          .getElementById("closeUserPanel")
+          ?.addEventListener("click", () => {
+            userPanel.style.display = "none";
+          });
+        document.getElementById("userBack")?.addEventListener("click", () => {
+          userPanel.style.display = "none";
+        });
+
+        // 🔹 Log paneli kapatma ve geri dön
+        const logPanel = document.getElementById("logPanel");
+        document.getElementById("closeLogs")?.addEventListener("click", () => {
+          logPanel.style.display = "none";
+        });
+        document.getElementById("logsBack")?.addEventListener("click", () => {
+          logPanel.style.display = "none";
+        });
+      });
+    </script>
+  </body>
+</html>

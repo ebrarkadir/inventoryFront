@@ -1,0 +1,1507 @@
+:root {
+  --bg: #f5f7fa;
+  --bg-alt: #eef2f7;
+  --card: #ffffff;
+  --border: #d9e1eb;
+  --border-strong: #b9c5d3;
+  --text: #1e2430;
+  --text-soft: #5a6472;
+  --focus: #2563eb;
+  --brand1: #2563eb;
+  --brand2: #1d4ed8;
+  --brand-grad: linear-gradient(135deg, var(--brand1), var(--brand2));
+  --danger: #dc2626;
+  --danger2: #b71c1c;
+  --warn: #d97706;
+  --success: #1e7a39;
+  --radius-s: 6px;
+  --radius-m: 12px;
+  --radius-l: 20px;
+  --shadow-sm: 0 2px 4px -1px rgba(20, 40, 80, 0.08),
+    0 4px 10px -2px rgba(20, 40, 80, 0.1);
+  --shadow: 0 4px 14px -4px rgba(20, 40, 80, 0.18),
+    0 10px 32px -6px rgba(20, 40, 80, 0.12);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Ubuntu, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --bg-alt: #1e293b;
+  --card: #1f2937;
+  --border: #334155;
+  --border-strong: #46546a;
+  --text: #f1f5f9;
+  --text-soft: #94a3b8;
+  --danger: #ef4444;
+  --danger2: #c81e1e;
+  --warn: #f59e0b;
+  --success: #10b981;
+  color-scheme: dark;
+}
+[data-theme="dark"] .login-card {
+  background: rgba(30, 41, 59, 0.92); /* koyu arka plan */
+}
+
+* {
+  box-sizing: border-box;
+  font-family: inherit;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  font-size: 15px;
+  line-height: 1.35;
+}
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.2;
+}
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius-s);
+  background: var(--brand-grad);
+  padding: 10px 18px;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.25s;
+  position: relative;
+}
+button:hover {
+  filter: brightness(1.08);
+}
+button:active {
+  transform: translateY(1px);
+}
+button.secondary {
+  background: linear-gradient(135deg, #64748b, #475569);
+}
+button.outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+button.outline:hover {
+  background: var(--bg-alt);
+}
+button.danger {
+  background: linear-gradient(135deg, var(--danger), var(--danger2));
+  color: #fff;
+}
+button.danger:hover {
+  filter: brightness(1.08);
+}
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font: inherit;
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.2s;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+::placeholder {
+  color: var(--text-soft);
+  opacity: 0.65;
+}
+small {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+hr {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 24px 0;
+}
+.hidden {
+  display: none !important;
+}
+.flex {
+  display: flex;
+}
+.gap-s {
+  gap: 8px;
+}
+.gap-m {
+  gap: 16px;
+}
+.center {
+  align-items: center;
+}
+.space-between {
+  justify-content: space-between;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+}
+.grow {
+  flex: 1;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-sm);
+  padding: 40px 44px 44px;
+  position: relative;
+  animation: fadeIn 0.55s cubic-bezier(0.16, 0.8, 0.32, 1);
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(25px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+.login-logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+.login-logo img {
+  max-width: 90px; /* logonun boyutunu ayarlayabilirsin */
+  height: auto;
+}
+
+/* LOGIN */
+#loginShell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 18px;
+
+  background: url("../images/wallpaper.jpg") no-repeat center center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+.login-card {
+  width: 400px;
+  max-width: 95%;
+  padding: 40px 32px;
+  background: rgba(255, 255, 255, 0.9); /* şeffaf beyaz kutu */
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+
+.login-badge {
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  background: var(--brand-grad);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 22px 11px;
+  border-radius: 999px;
+  letter-spacing: 0.55px;
+  box-shadow: 0 4px 14px -4px rgba(37, 99, 235, 0.55),
+    0 2px 6px -2px rgba(0, 0, 0, 0.25);
+  max-width: 62%;
+  line-height: 1.08;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-card h1 {
+  font-size: 32px;
+  margin: 78px 0 42px;
+  letter-spacing: 0.4px;
+}
+#loginForm .field {
+  margin-bottom: 26px;
+}
+#loginForm button[type="submit"] {
+  margin-top: 30px;
+}
+@media (max-width: 780px) {
+  .login-card {
+    padding: 70px 32px 50px;
+  }
+  .login-card h1 {
+    font-size: 28px;
+    margin: 84px 0 40px;
+  }
+  .login-badge {
+    position: static;
+    margin: 0 0 14px auto;
+    max-width: 100%;
+  }
+}
+.theme-toggle {
+  position: fixed;
+  bottom: 14px;
+  right: 16px;
+  z-index: 1000;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+.theme-toggle:hover {
+  background: var(--bg-alt);
+}
+
+/* APP */
+#appShell {
+  display: none;
+  min-height: 100vh;
+  flex-direction: column;
+}
+.app-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 26px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.brand-title {
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.badge-env {
+  padding: 4px 10px 5px;
+  background: var(--brand-grad);
+  border-radius: 999px;
+  font-size: 11px;
+  color: #fff;
+  letter-spacing: 0.6px;
+  font-weight: 600;
+}
+.user-chip {
+  background: var(--bg-alt);
+  padding: 8px 14px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
+  font-weight: 500;
+}
+.user-chip:hover {
+  background: var(--border);
+}
+.user-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  border-radius: 14px;
+  min-width: 200px;
+  padding: 10px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 20;
+}
+.user-menu button {
+  width: 100%;
+  background: transparent;
+  color: var(--text);
+  border: none;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+.user-menu button:hover {
+  background: var(--bg-alt);
+}
+.user-menu hr {
+  width: 100%;
+  margin: 4px 0 10px;
+}
+#menuLogout {
+  margin-top: 2px;
+  justify-content: center;
+  border: none !important;
+}
+.user-role-tag {
+  font-size: 11px;
+  background: #475569;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+}
+.app-main {
+  padding: 26px clamp(16px, 3vw, 42px) 70px;
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+  align-items: stretch;
+}
+
+
+
+@media (min-width: 1100px) {
+  .inventory-wrapper {
+    grid-template-columns: 360px 1fr;
+    align-items: start;
+  }
+}
+.inventory-wrapper.viewer-mode {
+  grid-template-columns: 1fr !important;
+}
+
+.table-container {
+  transition: width 0.4s ease, margin 0.4s ease;
+}
+
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.history-table th,
+.history-table td {
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+
+.history-table th {
+  background: #f0f0f0;
+  font-weight: 600;
+}
+
+.history-table tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.history-table tr:hover {
+  background: #f5f9ff;
+}
+
+.pagination {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+}
+
+.pagination button {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border, #d9e1eb);
+  background: var(--card, #ffffff);
+  color: var(--text, #1e2430);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: var(--brand1, #2563eb);
+  color: #fff;
+  border-color: var(--brand1, #2563eb);
+}
+
+.pagination button:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+  border-color: #e5e7eb;
+}
+
+.pagination #pageInfo {
+  font-weight: 500;
+  color: var(--text, #1e2430);
+  min-width: 100px;
+  text-align: center;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 26px 26px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+#toggleFormBtn.small {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.panel h2 {
+  font-size: 20px;
+  margin: 0 0 4px;
+}
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+.field label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.inline-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+/* TABLE */
+.table-container {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: auto;
+  box-shadow: var(--shadow-sm);
+  background: var(--card);
+}
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 950px;
+  font-size: 14px;
+}
+thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-alt);
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.55px;
+  font-weight: 600;
+  color: var(--text-soft);
+  border-bottom: 1px solid var(--border);
+}
+tbody td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tbody tr:last-child td {
+  border-bottom: none;
+}
+tbody tr:hover {
+  background: var(--bg-alt);
+}
+.badge-count {
+  background: #334155;
+  color: #fff;
+  padding: 2px 7px 3px;
+  border-radius: 999px;
+  font-size: 11px;
+  margin-left: 6px;
+}
+/* 🔹 GENEL POPUP (ortak temel) */
+.overlay-panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+  padding: 0; 
+}
+
+
+.overlay-panel[style*="display: flex"] {
+  justify-content: center;
+  align-items: center;
+}
+
+/* 🔹 Ortak overlay kart */
+.overlay-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 26px;
+  box-shadow: var(--shadow);
+  width: min(1100px, 95%);
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.4s;
+}
+
+/* 🔹 Tarihçe popup (orta ve geniş) */
+#historyPanel .overlay-card {
+  width: min(1200px, 95%);
+  max-height: 90vh;
+}
+
+/* 🔹 Kullanıcı yönetimi popup (daha küçük, orta hizalı) */
+#userPanel .overlay-card {
+  width: min(900px, 95%);
+  max-height: 85vh;
+}
+
+#userPanel .overlay-card,
+#userPanel .overlay-body,
+.user-table thead,
+.user-table {
+  overflow: visible !important;
+}
+
+
+
+/* Tooltip'in dışa taşması için yüksek katman önceliği */
+.user-actions .icon-btn {
+  position: relative;
+  z-index: 100;
+}
+
+/* Tooltip yukarıda görünmeye devam etsin */
+.user-actions .icon-btn::after,
+.user-actions .icon-btn::before {
+  z-index: 9999;
+}
+
+
+
+/* 🔹 Log popup (daha dar, dikey odaklı) */
+#logPanel .overlay-card {
+  width: min(800px, 90%);
+  max-height: 80vh;
+}
+
+
+.overlay-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border);
+}
+.overlay-body {
+  padding: 24px 28px 34px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.user-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.perms-block {
+  grid-column: 1/-1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+.perms-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: var(--text-soft);
+  text-transform: uppercase;
+}
+.perms-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.perm-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  padding: 6px 12px 6px 10px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: 0.2s;
+}
+.perm-item:hover {
+  background: var(--border);
+}
+.perm-item input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.perm-box {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--card);
+  font-size: 12px;
+  font-weight: 700;
+  transition: 0.25s;
+}
+.perm-item[data-checked="true"] .perm-box {
+  background: var(--brand-grad);
+  border-color: var(--brand2);
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+.perm-item:focus-within .perm-box {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.perm-item[data-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.perm-item[data-disabled="true"]:hover {
+  background: var(--bg-alt);
+}
+.perm-hint {
+  font-size: 11px;
+  color: var(--text-soft);
+}
+.admin-lock {
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: 4px;
+  color: var(--text-soft);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: var(--brand1);
+  color: #fff;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-summary {
+  text-align: right;
+  font-size: 13px;
+  color: var(--text-soft);
+  margin-top: 8px;
+}
+
+.log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+}
+.log-list li {
+  display: flex;
+  gap: 14px;
+  padding: 9px 6px 9px 4px;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.log-list li:last-child {
+  border-bottom: none;
+}
+.log-time {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--text-soft);
+  min-width: 140px;
+}
+.log-user {
+  font-weight: 600;
+}
+.log-empty {
+  padding: 40px 10px;
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 14px;
+}
+#logSearch {
+  margin-bottom: 10px;
+}
+/* Combo */
+.combo {
+  position: relative;
+}
+.combo input {
+  padding-right: 30px;
+}
+.combo button.combo-drop {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  color: var(--text-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.combo button.combo-drop:hover {
+  background: var(--border);
+}
+.combo-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-top: 4px;
+  max-height: 240px;
+  overflow: auto;
+  z-index: 30;
+  display: none;
+  flex-direction: column;
+}
+.combo-list.open {
+  display: flex;
+}
+.combo-list button {
+  background: transparent;
+  color: var(--text);
+  border: none;
+  justify-content: flex-start;
+  padding: 9px 12px;
+  border-radius: 0;
+  font-weight: 500;
+  font-size: 13px;
+}
+.combo-list button:hover {
+  background: var(--bg-alt, #f3f5f8);
+}
+.inline-hint {
+  font-size: 11px;
+  color: var(--text-soft);
+  margin-top: -4px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-alt);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--focus);
+}
+
+
+.filter-box {
+  position: relative;
+  margin-top: 6px;
+}
+.filter-input {
+  width: 100%;
+  padding: 4px 6px;
+  font-size: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.filter-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 100;
+  width: 100%;
+}
+.filter-dropdown.open {
+  display: block;
+}
+.filter-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 4px 6px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+}
+.filter-dropdown button:hover {
+  background: #eee;
+}
+.dropdown-empty {
+  padding: 6px;
+  font-size: 12px;
+  color: #888;
+}
+
+#panelForm.panel.slide-panel {
+  position: relative;
+  width: 360px;
+  min-width: 360px;
+  max-width: 100%;
+  transition: transform 0.45s ease, width 0.45s ease;
+  transform: translateX(0);
+  z-index: 5;
+}
+
+
+/* ✅ Panel açıkken normal iki kolon */
+.inventory-wrapper {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 30px;
+  transition: all 0.4s ease;
+}
+
+/* ✅ Panel kapalıyken tablo neredeyse tam genişlikte (biraz boşluk kalır) */
+.inventory-wrapper.panel-collapsed {
+  grid-template-columns: 12px 1fr; /* sadece 12px boşluk bırakıyoruz */
+  gap: 12px; /* aradaki boşluk */
+}
+
+/* ✅ Panel tamamen dışarı kayar */
+#panelForm.panel.slide-panel.collapsed {
+  transform: translateX(-100%);
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+#panelForm.panel.slide-panel.collapsed h2 {
+  display: none; /* başlık tamamen gizlenir */
+}
+
+
+#panelForm .toggle-slide-btn {
+  position: absolute;
+  top: 10px;
+  right: -5px;
+  background: var(--brand1);
+  color: #fff;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+#panelForm .toggle-slide-btn:hover {
+  background: var(--brand2);
+}
+
+
+#panelForm.panel.slide-panel.collapsed .toggle-slide-btn::after {
+  content: "»";
+}
+#panelForm.panel.slide-panel:not(.collapsed) .toggle-slide-btn::after {
+  content: "«";
+}
+
+
+#panelForm.panel.slide-panel .field-grid,
+#panelForm.panel.slide-panel .inline-actions,
+#panelForm.panel.slide-panel small {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+#panelForm.panel.slide-panel.collapsed .field-grid,
+#panelForm.panel.slide-panel.collapsed .inline-actions,
+#panelForm.panel.slide-panel.collapsed small {
+  opacity: 0;
+  pointer-events: none;
+}
+.filter-input {
+  width: 100%;
+  padding: 4px 6px;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+th[data-sort="none"]::after {
+  content: " ▲▼";
+  color: #9ca3af; /* açık gri */
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+th[data-sort="asc"]::after {
+  content: " ▲";
+  color: #2563eb;
+}
+
+th[data-sort="desc"]::after {
+  content: " ▼";
+  color: #2563eb;
+}
+th[data-sort="none"]:hover::after {
+  color: #6b7280;
+  opacity: 0.9;
+}
+th, td {
+  text-align: center;
+  vertical-align: middle;
+}
+.filter-select {
+  width: 90%;
+  border-radius: 6px;
+  padding: 2px 4px;
+}
+.no-filter {
+  color: #9ca3af; /* açık gri */
+  font-style: italic;
+  text-align: center;
+  opacity: 0.6;
+}
+
+/* 🌙 Dark tema — Pasif satır (tema tonuna uygun, yumuşak mavi-gri) */
+[data-theme="dark"] table tbody tr.inactive-row {
+  background-color: #263247 !important;  /* bg-alt (#1e293b)'dan biraz açık */
+  color: var(--text-soft) !important;    /* #94a3b8 */
+  border-color: var(--border) !important;/* #334155 */
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+/* Hover — bir ton parlak (card'a yaklaşır) */
+[data-theme="dark"] table tbody tr.inactive-row:hover {
+  background-color: #2c3b52 !important;  /* card tonu (#1f2937)'dan biraz açık */
+  color: var(--text) !important;         /* #f1f5f9 */
+}
+
+/* 🌙 DARK MODE - Envanter Tarihçesi Popup Uyumu */
+[data-theme="dark"] #historyPanel .overlay-card {
+  background: var(--card) !important;        /* koyu panel tonu (#1f2937) */
+  border-color: var(--border) !important;    /* #334155 */
+  color: var(--text) !important;             /* #f1f5f9 */
+}
+
+/* İçerik alanı (overlay-body) */
+[data-theme="dark"] #historyPanel .overlay-body {
+  background: var(--card) !important;
+  color: var(--text) !important;
+}
+
+/* Tablo genel */
+[data-theme="dark"] #historyPanel table {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+/* Tablo başlıkları */
+[data-theme="dark"] #historyPanel th {
+  background: var(--bg-alt) !important;      /* koyu gri-mavi ton */
+  color: var(--text-soft) !important;
+  border-color: var(--border) !important;
+}
+
+/* Satır arka planı */
+[data-theme="dark"] #historyPanel td {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+/* Hover efekti */
+[data-theme="dark"] #historyPanel tr:hover td {
+  background: #263247 !important; /* biraz açık mavi-gri */
+}
+
+
+
+td:last-child {
+  display: flex;
+  flex-direction: column; /* Dikey hizalama */
+  align-items: center;
+  justify-content: center;
+  gap: 8px;               /* Butonlar arası boşluk */
+  padding: 10px 8px;      /* 🟢 Hücre içi boşluk — tablo kenarına nefes aldırır */
+  box-sizing: border-box;
+}
+
+/* 🎨 Genel buton stili */
+td:last-child button {
+  width: 72px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); /* Yumuşak gölge efekti */
+}
+
+/* 🔵 Düzenle */
+td:last-child button.outline {
+  background-color: #2563eb;
+}
+td:last-child button.outline:hover {
+  background-color: #1d4ed8;
+}
+
+/* 🔴 Sil */
+td:last-child button.danger {
+  background-color: #dc2626;
+}
+td:last-child button.danger:hover {
+  background-color: #b91c1c;
+}
+
+/* ⚪ Tarihçe */
+td:last-child button:nth-child(3) {
+  background-color: #6b7280;
+}
+td:last-child button:nth-child(3):hover {
+  background-color: #4b5563;
+}
+/* ⚪ Tarihçe (gri buton) */
+td:last-child button:last-child {
+  background-color: #6b7280;
+}
+td:last-child button:last-child:hover {
+  background-color: #4b5563;
+}
+
+button.restore:hover {
+  filter: brightness(1.1);
+  background-color: #15803d;
+}
+
+/* 🌞 Aydınlık tema pasif satır */
+:root .inactive-row {
+  background-color: #f1f3f5 !important;  /* açık gri */
+  color: #6b7280 !important;             /* orta gri yazı */
+}
+
+:root .inactive-row:hover {
+  background-color: #e5e7eb !important;
+}
+.user-table {
+  border-collapse: collapse;   /* satır-sütun hizası */
+  table-layout: fixed;         /* hücre genişlikleri sabit */
+  width: 100%;
+  position: relative;          /* z-index kontrolü için */
+}
+
+/* başlık her zaman üstte kalsın */
+.user-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;                /* ✅ başlık en üstte */
+  background: var(--bg-alt);   /* kayınca da arka plan sabit kalır */
+}
+
+/* veri satırları başlığın üstüne çıkamasın */
+.user-table tbody tr {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* 🔹 Her sütun düzgün otursun */
+.user-table th,
+.user-table td {
+  padding: 10px 12px;
+  text-align: center;
+  vertical-align: middle;
+  word-wrap: break-word;
+}
+
+/* 🔹 İşlem sütunu genişliğini sabitle */
+.user-table th:last-child,
+.user-table td:last-child {
+  width: 120px;
+  white-space: nowrap;
+}
+
+/* 🔹 Tooltiplerin üstte görünmesi için sadece user-actions alanını aç */
+.user-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  z-index: 10; /* üstte tut */
+  overflow: visible; /* sadece burada aç */
+}
+
+/* 🔹 Butonlar */
+.user-actions .icon-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: none;
+  border: none;
+  position: relative;
+}
+
+/* 🔹 Sadece buton için üst katman */
+.user-actions .icon-btn:hover {
+  z-index: 9999; /* tooltip üstte kalsın */
+  transform: scale(1.05);
+}
+.icon-btn::after,
+.icon-btn::before {
+  z-index: 10000 !important;
+}
+.user-table tbody tr,
+.user-actions .icon-btn {
+  position: relative;
+  z-index: 5; /* tooltip butonlardan yukarı çıksın */
+}
+/* 🔹 Renkler */
+.icon-btn.outline {
+  background: #2563eb;
+  color: white;
+}
+.icon-btn.danger {
+  background: #dc2626;
+  color: white;
+}
+
+/* 🔹 Gri görünüm (Admin düzenlenirken) */
+.perms-block.disabled-perms {
+  opacity: 0.6;
+  pointer-events: none;
+  filter: grayscale(0.6);
+  transition: opacity 0.25s, filter 0.25s;
+}
+
+
+/* 🎨 GENEL İKON BUTON TASARIMI */
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  position: relative;
+  margin: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* 🔸 İKONLAR HER ZAMAN BEYAZ GÖRÜNÜR */
+.icon-btn img {
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  filter: brightness(0) invert(1);
+}
+
+/* 🔹 HOVER EFEKTİ */
+.icon-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+
+.icon-btn::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 120%; /* ✅ yukarı taşı */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(31, 41, 55, 0.95);
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 9999;
+}
+
+/* 🧭 Tooltip oku (yukarı yönlü) */
+.icon-btn::before {
+  content: "";
+  position: absolute;
+  bottom: 110%; /* ✅ yukarı oku hizala */
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(31, 41, 55, 0.95);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 9999;
+}
+
+/* 🪶 Hover’da tooltip görünür */
+.icon-btn:hover::after,
+.icon-btn:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-3px); /* yukarıda hafif boşluk */
+}
+
+
+/* 🔵 DÜZENLE (mavi) */
+.icon-btn.edit {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+/* 🔴 SİL (kırmızı) */
+.icon-btn.danger {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+/* 🟢 GERİ YÜKLE (yeşil) */
+.icon-btn.restore {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+/* ⚫ TARİHÇE (gri) */
+.icon-btn.history {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+}
+
+
+
+
+
+/* ✅ Çoklu Seçim Dropdown */
+.multi-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 100%;
+  width: max-content;             /* içeriğe göre genişle */
+  max-width: 320px;               /* çok taşmasın */
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  padding: 8px 10px;
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 1000;                  /* tablo üstüne çıksın */
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.multi-dropdown.open {
+  display: flex;
+}
+
+/* Yukarı açılma durumu */
+.multi-dropdown.open-up {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+/* Sola/sağa hizalama */
+.multi-dropdown.align-right {
+  left: auto;
+  right: 0;
+}
+
+
+.multi-dropdown label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.multi-dropdown label:hover {
+  background: var(--bg-alt);
+}
+
+/* 🔹 Filtre butonları */
+.filter-select {
+  width: 100%;
+  font-size: 13px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: var(--text);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filter-select:hover {
+  background: var(--card);
+}
+
+.multi-dropdown input[type="checkbox"] {
+  all: unset;                     /* global input stillerini sıfırla */
+  appearance: checkbox;
+  -webkit-appearance: checkbox;
+  -moz-appearance: checkbox;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--brand1);
+  cursor: pointer;
+  border-radius: 4px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* ✅ Tablo başlığı altında kalmasın */
+thead th { z-index: 5; }
+
+/* ✅ Table container referans konum */
+.table-container { position: relative; }
+
+/* Yukarı açılma ve hizalama varyasyonları */
+.multi-dropdown.open-up {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+.multi-dropdown.align-right {
+  left: auto;
+  right: 0;
+}
+
+
+/* 🔹 Dark tema destek */
+[data-theme="dark"] .multi-dropdown {
+  background: var(--card);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .filter-select {
+  background: var(--bg-alt);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+

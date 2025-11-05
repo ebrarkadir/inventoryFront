@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Envanter Takip Sistemi</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{
+  --bg:#f5f7fa;--bg-alt:#eef2f7;--card:#ffffff;--border:#d9e1eb;--border-strong:#b9c5d3;
+  --text:#1e2430;--text-soft:#5a6472;--focus:#2563eb;--brand1:#2563eb;--brand2:#1d4ed8;
+  --brand-grad:linear-gradient(135deg,var(--brand1),var(--brand2));
+  --danger:#dc2626;--danger2:#b71c1c;
+  --warn:#d97706;--success:#1e7a39;
+  --radius-s:6px;--radius-m:12px;--radius-l:20px;
+  --shadow-sm:0 2px 4px -1px rgba(20,40,80,.08),0 4px 10px -2px rgba(20,40,80,.10);
+  --shadow:0 4px 14px -4px rgba(20,40,80,.18),0 10px 32px -6px rgba(20,40,80,.12);
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;
+  color-scheme: light;
+}
+[data-theme="dark"]{
+  --bg:#0f172a;--bg-alt:#1e293b;--card:#1f2937;--border:#334155;--border-strong:#46546a;
+  --text:#f1f5f9;--text-soft:#94a3b8;--danger:#ef4444;--danger2:#c81e1e;--warn:#f59e0b;--success:#10b981;
+  color-scheme: dark;
+}
+*{box-sizing:border-box;font-family:inherit;}
+body{margin:0;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.35;}
+h1,h2,h3,h4{margin:0;font-weight:600;line-height:1.2;}
+button{font:inherit;cursor:pointer;border:none;border-radius:var(--radius-s);background:var(--brand-grad);
+  padding:10px 18px;color:#fff;font-weight:600;letter-spacing:.3px;display:inline-flex;align-items:center;gap:6px;
+  transition:.25s;position:relative;}
+button:hover{filter:brightness(1.08);}button:active{transform:translateY(1px);}
+button.secondary{background:linear-gradient(135deg,#64748b,#475569);}
+button.outline{background:transparent;color:var(--text);border:1px solid var(--border-strong);}
+button.outline:hover{background:var(--bg-alt);}button.danger{background:linear-gradient(135deg,var(--danger),var(--danger2));color:#fff;}
+button.danger:hover{filter:brightness(1.08);}
+input,select,textarea{width:100%;border:1px solid var(--border);background:var(--card);color:var(--text);
+  padding:10px 12px;border-radius:10px;font:inherit;transition:border-color .18s,box-shadow .18s,background .2s;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--focus);box-shadow:0 0 0 3px rgba(37,99,235,.25);}
+::placeholder{color:var(--text-soft);opacity:.65;}
+small{font-size:12px;color:var(--text-soft);}hr{border:none;height:1px;background:var(--border);margin:24px 0;}
+.hidden{display:none !important;}
+.flex{display:flex;} .gap-s{gap:8px;} .gap-m{gap:16px;} .center{align-items:center;} .space-between{justify-content:space-between;}
+.col{display:flex;flex-direction:column;} .grow{flex:1;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-l);box-shadow:var(--shadow-sm);
+  padding:40px 44px 44px;position:relative;animation:fadeIn .55s cubic-bezier(.16,.8,.32,1);}
+@keyframes fadeIn{0%{opacity:0;transform:translateY(25px) scale(.96)}100%{opacity:1;transform:none}}
+/* LOGIN */
+#loginShell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:56px 18px;}
+.login-card{width:540px;max-width:100%;padding:56px 52px 54px;}
+.login-badge{position:absolute;top:18px;right:24px;background:var(--brand-grad);color:#fff;font-size:13px;font-weight:600;
+  padding:9px 22px 11px;border-radius:999px;letter-spacing:.55px;box-shadow:0 4px 14px -4px rgba(37,99,235,.55),0 2px 6px -2px rgba(0,0,0,.25);
+  max-width:62%;line-height:1.08;display:flex;align-items:center;justify-content:center;}
+.login-card h1{font-size:32px;margin:78px 0 42px;letter-spacing:.4px;}
+#loginForm .field{margin-bottom:26px;} #loginForm button[type=submit]{margin-top:30px;}
+@media(max-width:780px){.login-card{padding:70px 32px 50px}.login-card h1{font-size:28px;margin:84px 0 40px}
+  .login-badge{position:static;margin:0 0 14px auto;max-width:100%}}
+.theme-toggle{position:fixed;bottom:14px;right:16px;z-index:1000;background:var(--card);border:1px solid var(--border);
+  padding:8px 14px;border-radius:999px;display:flex;align-items:center;gap:6px;font-size:13px;box-shadow:var(--shadow-sm);cursor:pointer;}
+.theme-toggle:hover{background:var(--bg-alt);}
+/* APP */
+#appShell{display:none;min-height:100vh;flex-direction:column;}
+.app-topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 26px;background:var(--card);
+  border-bottom:1px solid var(--border);gap:16px;position:sticky;top:0;z-index:10;}
+.brand-title{font-size:18px;font-weight:600;display:flex;align-items:center;gap:8px;}
+.badge-env{padding:4px 10px 5px;background:var(--brand-grad);border-radius:999px;font-size:11px;color:#fff;letter-spacing:.6px;font-weight:600;}
+.user-chip{background:var(--bg-alt);padding:8px 14px;border-radius:999px;display:flex;align-items:center;gap:10px;cursor:pointer;position:relative;font-weight:500;}
+.user-chip:hover{background:var(--border);}
+.user-menu{position:absolute;top:calc(100% + 6px);right:0;background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);
+  border-radius:14px;min-width:200px;padding:10px 10px 14px;display:flex;flex-direction:column;gap:4px;z-index:20;}
+.user-menu button{width:100%;background:transparent;color:var(--text);border:none;text-align:left;padding:10px 12px;border-radius:10px;font-weight:500;letter-spacing:.2px;}
+.user-menu button:hover{background:var(--bg-alt);}
+.user-menu hr{width:100%;margin:4px 0 10px;}
+#menuLogout{margin-top:2px;justify-content:center;border:none !important;}
+.user-role-tag{font-size:11px;background:#475569;color:#fff;padding:4px 8px;border-radius:999px;letter-spacing:.5px;}
+.app-main{padding:26px clamp(16px,3vw,42px) 70px;display:flex;flex-direction:column;gap:34px;align-items:stretch;}
+.inventory-wrapper{display:grid;grid-template-columns:1fr;gap:30px;}
+@media(min-width:1100px){.inventory-wrapper{grid-template-columns:360px 1fr;align-items:start;}}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:26px 26px 32px;display:flex;flex-direction:column;gap:22px;
+  box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+.panel h2{font-size:20px;margin:0 0 4px;}
+.field-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+.field{display:flex;flex-direction:column;gap:6px;position:relative;}
+.field label{font-size:11px;font-weight:600;letter-spacing:.6px;color:var(--text-soft);text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;}
+.inline-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+textarea{min-height:72px;resize:vertical;}
+/* TABLE */
+.table-container{border:1px solid var(--border);border-radius:18px;overflow:auto;box-shadow:var(--shadow-sm);background:var(--card);}
+table{width:100%;border-collapse:separate;border-spacing:0;min-width:950px;font-size:14px;}
+thead th{position:sticky;top:0;background:var(--bg-alt);text-align:left;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.55px;
+  font-weight:600;color:var(--text-soft);border-bottom:1px solid var(--border);}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--bg-alt);}
+.badge-count{background:#334155;color:#fff;padding:2px 7px 3px;border-radius:999px;font-size:11px;margin-left:6px;}
+/* OVERLAYS */
+.overlay-panel{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;padding:50px 18px;z-index:200;}
+.overlay-card{background:var(--card);border:1px solid var(--border);border-radius:26px;box-shadow:var(--shadow);width:min(1200px,100%);
+  max-height:84vh;overflow:hidden;display:flex;flex-direction:column;animation:fadeIn .4s;}
+.overlay-card header{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;border-bottom:1px solid var(--border);}
+.overlay-body{padding:24px 28px 34px;overflow:auto;display:flex;flex-direction:column;gap:28px;}
+/* USER FORM GRID */
+.user-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;align-items:start;}
+/* Permission group */
+.perms-block{grid-column:1/-1;display:flex;flex-direction:column;gap:8px;margin-top:4px;}
+.perms-label{font-size:11px;font-weight:600;letter-spacing:.6px;color:var(--text-soft);text-transform:uppercase;}
+.perms-row{display:flex;flex-wrap:wrap;gap:14px;}
+.perm-item{display:flex;align-items:center;gap:8px;position:relative;padding:6px 12px 6px 10px;background:var(--bg-alt);border:1px solid var(--border);
+  border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;user-select:none;transition:.2s;}
+.perm-item:hover{background:var(--border);}
+.perm-item input{position:absolute;opacity:0;pointer-events:none;}
+.perm-box{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--border-strong);
+  border-radius:6px;background:var(--card);color:var(--card);font-size:12px;font-weight:700;transition:.25s;}
+.perm-item[data-checked="true"] .perm-box{background:var(--brand-grad);border-color:var(--brand2);color:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.25);}
+.perm-item:focus-within .perm-box{outline:2px solid var(--focus);outline-offset:2px;}
+.perm-item[data-disabled="true"]{opacity:.55;cursor:not-allowed;}
+.perm-item[data-disabled="true"]:hover{background:var(--bg-alt);}
+.perm-hint{font-size:11px;color:var(--text-soft);}
+.admin-lock{font-size:11px;font-weight:500;margin-left:4px;color:var(--text-soft);}
+/* Logs */
+.log-list{list-style:none;margin:0;padding:0;font-size:13px;}
+.log-list li{display:flex;gap:14px;padding:9px 6px 9px 4px;border-bottom:1px solid var(--border);align-items:flex-start;}
+.log-list li:last-child{border-bottom:none;}
+.log-time{font-family:monospace;font-size:12px;color:var(--text-soft);min-width:140px;}
+.log-user{font-weight:600;}
+.log-empty{padding:40px 10px;text-align:center;color:var(--text-soft);font-size:14px;}
+#logSearch{margin-bottom:10px;}
+/* Combo */
+.combo{position:relative;}
+.combo input{padding-right:30px;}
+.combo button.combo-drop{position:absolute;top:50%;right:6px;transform:translateY(-50%);width:24px;height:24px;border-radius:6px;background:var(--bg-alt);
+  border:1px solid var(--border);color:var(--text-soft);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:.2s;}
+.combo button.combo-drop:hover{background:var(--border);}
+.combo-list{position:absolute;top:100%;left:0;width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);
+  margin-top:4px;max-height:240px;overflow:auto;z-index:30;display:none;flex-direction:column;}
+.combo-list.open{display:flex;}
+.combo-list button{background:transparent;color:var(--text);border:none;justify-content:flex-start;padding:9px 12px;border-radius:0;font-weight:500;font-size:13px;}
+.combo-list button:hover{background:var(--bg-alt);}
+.inline-hint{font-size:11px;color:var(--text-soft);margin-top:-4px;}
+/* Scrollbars */
+::-webkit-scrollbar{width:10px;height:10px;}::-webkit-scrollbar-track{background:var(--bg-alt);}::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:8px;}
+::-webkit-scrollbar-thumb:hover{background:var(--focus);}
+</style>
+</head>
+<body>
+<div class="theme-toggle" id="themeToggle" title="Tema Değiştir">🌗 Tema</div>
+
+<!-- LOGIN -->
+<section id="loginShell">
+  <div class="card login-card">
+    <div class="login-badge">ULAK HABERLEŞME A.Ş.</div>
+    <h1>Kullanıcı Girişi</h1>
+    <form id="loginForm" autocomplete="off">
+      <div class="field">
+        <label for="loginUser">Kullanıcı Adı</label>
+        <input id="loginUser" type="text" placeholder="Kullanıcı Adı" autofocus>
+      </div>
+      <div class="field">
+        <label for="loginPass">Şifre</label>
+        <div style="position:relative;">
+          <input id="loginPass" type="password" placeholder="Şifre">
+          <button type="button" id="pwToggle" class="outline" style="position:absolute;top:50%;right:6px;transform:translateY(-50%);padding:4px 10px;font-size:12px;min-width:auto;">Göster</button>
+        </div>
+      </div>
+      <div class="field">
+        <button type="submit" id="loginBtn" style="width:100%;font-size:16px;padding:14px 18px;">Giriş Yap</button>
+      </div>
+      <div id="loginStatus" class="inline-hint" aria-live="polite" style="min-height:18px;"></div>
+    </form>
+  </div>
+</section>
+
+<!-- APP -->
+<section id="appShell">
+  <header class="app-topbar">
+    <div class="brand-title"><strong>Envanter Takip Sistemi</strong><span class="badge-env">AKTİF</span></div>
+    <div class="flex gap-s center">
+      <button id="btnAddField" class="outline">+ Alan Ekle</button>
+      <button id="btnUserMgmt" class="outline">Kullanıcı Yönetimi</button>
+      <button id="btnLogs" class="outline">Loglar</button>
+      <div class="user-chip" id="userChip">
+        <span id="chipName">user</span>
+        <span class="user-role-tag" id="chipRole">ROLE</span>
+        <div class="user-menu hidden" id="userMenu">
+          <button id="menuHome">Ana Sayfa</button>
+          <button id="menuUsers">Kullanıcı Yönetimi</button>
+          <button id="menuLogs">Loglar</button>
+          <hr>
+          <button id="menuLogout" class="danger">Çıkış</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main" id="homeView">
+    <div class="inventory-wrapper">
+      <!-- FORM PANEL -->
+      <div class="panel" id="panelForm">
+        <h2>Envanter Kaydı</h2>
+        <div class="field-grid" id="coreFields"></div>
+        <div class="inline-actions">
+          <button id="btnSave">Kaydet</button>
+          <button id="btnClear" type="button" class="secondary">Temizle</button>
+        </div>
+        <small class="inline-hint">Kayıt ekledikten sonra aşağıdaki listede göreceksiniz.</small>
+      </div>
+
+      <!-- LIST PANEL -->
+      <div class="panel" id="panelList">
+        <div class="flex space-between center">
+          <h2 style="margin-bottom:2px;">Envanter Listesi <span class="badge-count" id="invCount">0</span></h2>
+          <div class="filter-bar">
+            <input id="searchBox" type="text" placeholder="Ara (Seri / Ad / Marka ...)" />
+            <button id="btnExport" class="outline" style="font-size:13px;">Dışa Aktar</button>
+            <button id="btnImport" class="outline" style="font-size:13px;">İçe Al</button>
+            <input id="importFile" type="file" accept=".json" style="display:none;">
+          </div>
+        </div>
+        <div class="table-container">
+          <table id="invTable">
+            <thead id="invHead"></thead>
+            <tbody id="invBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- USER MANAGEMENT OVERLAY -->
+<div class="overlay-panel" id="userPanel">
+  <div class="overlay-card">
+    <header>
+      <div class="flex center gap-s">
+        <button class="outline" id="userBack">Ana Sayfaya Dön</button>
+        <h2 style="margin:0;">Kullanıcı Yönetimi</h2>
+      </div>
+      <button id="closeUserPanel" class="outline">Kapat</button>
+    </header>
+    <div class="overlay-body">
+      <div class="user-form-grid" id="userFormFields"></div>
+      <div class="inline-actions">
+        <button id="btnSaveUser">Kullanıcı Kaydet</button>
+        <button id="btnResetUserForm" type="button" class="secondary">Form Temizle</button>
+      </div>
+      <h3 style="margin:10px 0 4px;font-size:18px;">Kullanıcı Listesi</h3>
+      <div class="table-container" style="border-radius:18px;">
+        <table class="user-table" style="min-width:600px;">
+          <thead>
+            <tr>
+              <th>Kullanıcı</th><th>Rol</th><th>Yetkiler</th><th>İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="userListBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOG OVERLAY -->
+<div class="overlay-panel" id="logPanel">
+  <div class="overlay-card">
+    <header>
+      <div class="flex center gap-s">
+        <button class="outline" id="logsBack">Ana Sayfaya Dön</button>
+        <h2 style="margin:0;">İşlem Logları</h2>
+      </div>
+      <div class="flex gap-s">
+        <button id="btnClearLogs" class="outline" style="font-size:13px;">Logları Temizle</button>
+        <button id="closeLogs" class="outline">Kapat</button>
+      </div>
+    </header>
+    <div class="overlay-body" style="gap:16px;">
+      <input id="logSearch" placeholder="Log ara (kullanıcı / metin / tarih)..." />
+      <ul class="log-list" id="logList"></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- KEYS & DATA ---------- */
+const LS_PREFIX="ETS_FULL_",KEY_USERS=LS_PREFIX+"USERS",KEY_ITEMS=LS_PREFIX+"ITEMS",KEY_FIELDS=LS_PREFIX+"EXTRA_FIELDS",KEY_LOGS=LS_PREFIX+"LOGS",KEY_THEME=LS_PREFIX+"THEME";
+const DEFAULT_USERS=[
+  {username:"admin",password:"admin123",role:"Admin",perms:{inventory:true,logs:true,users:true}},
+  {username:"edit",password:"edit123",role:"Constructor",perms:{inventory:true,logs:true,users:false}},
+  {username:"demo",password:"demo123",role:"Viewer",perms:{inventory:true,logs:false,users:false}}
+];
+const CORE_FIELDS=[
+  {key:"serial",label:"Seri No"},
+  {key:"brand",label:"Marka"},
+  {key:"name",label:"Malzeme Adı"},
+  {key:"group",label:"Malzeme Grubu"},
+  {key:"model",label:"Model"},
+  {key:"quantity",label:"Adet",type:"number"},
+  {key:"entryDate",label:"Stok Giriş Tarihi",type:"date"},
+  {key:"exitDate",label:"Stok Çıkış Tarihi",type:"date"},
+  {key:"description",label:"Açıklama",type:"textarea"},
+  {key:"project",label:"Tahsis Edilen Proje"},
+  {key:"person",label:"Tahsis Edilen Kişi"}
+];
+let users=JSON.parse(localStorage.getItem(KEY_USERS)||"null");
+if(!users||!users.length){users=DEFAULT_USERS;localStorage.setItem(KEY_USERS,JSON.stringify(users));}
+let items=JSON.parse(localStorage.getItem(KEY_ITEMS)||"[]");
+let extraFields=JSON.parse(localStorage.getItem(KEY_FIELDS)||"[]");
+let logs=JSON.parse(localStorage.getItem(KEY_LOGS)||"[]");
+let currentUser=null,editingIndex=-1,editingUserIndex=-1;
+
+const $=s=>document.querySelector(s);
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+function saveAll(){
+  localStorage.setItem(KEY_USERS,JSON.stringify(users));
+  localStorage.setItem(KEY_ITEMS,JSON.stringify(items));
+  localStorage.setItem(KEY_FIELDS,JSON.stringify(extraFields));
+  localStorage.setItem(KEY_LOGS,JSON.stringify(logs));
+}
+function logAction(a){
+  const entry={ts:Date.now(),user:currentUser?.username||"-",action:a};
+  logs.push(entry);localStorage.setItem(KEY_LOGS,JSON.stringify(logs));
+  if($("#logPanel").style.display==="flex") renderLogs();
+}
+function formatDate(ts){const d=new Date(ts);return isNaN(d.getTime())?"invalid date":d.toLocaleString("tr-TR");}
+
+/* THEME */
+function applyTheme(){const t=localStorage.getItem(KEY_THEME)||"light";document.documentElement.dataset.theme=t;}
+applyTheme();
+$("#themeToggle").addEventListener("click",()=>{
+  const cur=document.documentElement.dataset.theme==="dark"?"dark":"light";
+  const next=cur==="dark"?"light":"dark";localStorage.setItem(KEY_THEME,next);applyTheme();
+});
+
+/* LOGIN */
+$("#pwToggle").addEventListener("click",()=>{
+  const p=$("#loginPass");
+  if(p.type==="password"){p.type="text";$("#pwToggle").textContent="Gizle";}
+  else{p.type="password";$("#pwToggle").textContent="Göster";}
+});
+$("#loginForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const u=$("#loginUser").value.trim(), p=$("#loginPass").value;
+  const found=users.find(x=>x.username===u&&x.password===p);
+  const status=$("#loginStatus");
+  if(!found){status.textContent="Kullanıcı adı veya şifre hatalı.";status.style.color="var(--danger)";return;}
+  currentUser=found;
+  status.textContent="Giriş başarılı.";status.style.color="var(--success)";
+  logAction("Giriş yaptı");
+  setTimeout(()=>{
+    $("#loginShell").style.display="none";
+    $("#appShell").style.display="flex";
+    $("#chipName").textContent=currentUser.username;
+    $("#chipRole").textContent=currentUser.role;
+    buildCoreForm();buildTable();renderTable();buildUserForm();
+    enforcePermissions();
+  },250);
+});
+
+/* PERMISSIONS */
+function enforcePermissions(){
+  $("#btnAddField").disabled=!currentUser.perms.inventory||currentUser.role==="Viewer";
+  $("#btnUserMgmt").disabled=!currentUser.perms.users;
+  $("#btnLogs").disabled=!currentUser.perms.logs;
+  $("#btnSave").disabled=currentUser.role==="Viewer";
+  $("#btnExport").disabled=currentUser.role==="Viewer";
+  $("#btnImport").disabled=currentUser.role==="Viewer";
+}
+
+/* USER MENU */
+const userChip=$("#userChip"), userMenu=$("#userMenu");
+userChip.addEventListener("click",e=>{userMenu.classList.toggle("hidden");e.stopPropagation();});
+document.addEventListener("click",e=>{
+  if(!userMenu.classList.contains("hidden")){
+    if(!userMenu.contains(e.target)&&!userChip.contains(e.target))userMenu.classList.add("hidden");
+  }
+});
+$("#menuLogout").addEventListener("click",()=>{
+  logAction("Çıkış yaptı");
+  currentUser=null;
+  $("#appShell").style.display="none";
+  $("#loginShell").style.display="flex";
+  $("#loginUser").value="";$("#loginPass").value="";
+  userMenu.classList.add("hidden");
+});
+$("#menuHome").addEventListener("click",goHome);
+function goHome(){
+  closeUserPanel();closeLogs();
+  $("#homeView").style.display="flex";
+  userMenu.classList.add("hidden");
+  logAction("Ana sayfaya döndü");
+}
+
+/* INVENTORY FORM */
+const hybridKeys=["group","brand","model","project","person"];
+function buildCoreForm(){
+  const c=$("#coreFields"); c.innerHTML="";
+  const fields=[...CORE_FIELDS,...extraFields];
+  fields.forEach(f=>{
+    const wrap=el("div","field");wrap.dataset.key=f.key;
+    wrap.appendChild(el("label",null,f.label));
+    if(hybridKeys.includes(f.key)){
+      const combo=el("div","combo");
+      const input=el("input");input.type="text";input.id="f_"+f.key;input.placeholder=f.label;
+      const btn=el("button","combo-drop","▾");btn.type="button";
+      const list=el("div","combo-list");
+      btn.addEventListener("click",()=>{list.classList.toggle("open");if(list.classList.contains("open"))populateComboList(f.key,list,input.value);});
+      input.addEventListener("input",()=>{if(list.classList.contains("open"))populateComboList(f.key,list,input.value);});
+      combo.appendChild(input);combo.appendChild(btn);combo.appendChild(list);wrap.appendChild(combo);
+    }else if(f.type==="textarea"){
+      const ta=el("textarea");ta.id="f_"+f.key;ta.placeholder=f.label;wrap.appendChild(ta);
+    }else{
+      const inp=el("input");inp.id="f_"+f.key;inp.type=f.type==="number"?"number":(f.type==="date"?"date":"text");inp.placeholder=f.label;wrap.appendChild(inp);
+    }
+    c.appendChild(wrap);
+  });
+}
+function populateComboList(key,listEl,filter){
+  const values=[...new Set(items.map(it=>it[key]).filter(v=>v))].sort();
+  const f=(filter||"").toLowerCase(); listEl.innerHTML="";
+  const filtered=values.filter(v=>v.toLowerCase().includes(f));
+  if(!filtered.length){
+    const empty=el("button",null,"(Kayıt yok)");empty.disabled=true;listEl.appendChild(empty);
+  }else{
+    filtered.forEach(v=>{
+      const b=el("button",null,v);b.type="button";b.addEventListener("click",()=>{$("#f_"+key).value=v;listEl.classList.remove("open");});
+      listEl.appendChild(b);
+    });
+  }
+}
+$("#btnAddField").addEventListener("click",()=>{
+  if(currentUser.role==="Viewer")return;
+  const name=prompt("Yeni alan adı girin:");
+  if(!name)return;
+  const key=name.toLowerCase().trim().replace(/\s+/g,"_").replace(/[^a-z0-9_ğüşöçı]/gi,"");
+  if(!key){alert("Geçersiz isim.");return;}
+  if(CORE_FIELDS.some(f=>f.key===key)||extraFields.some(f=>f.key===key)){alert("Alan zaten var.");return;}
+  extraFields.push({key,label:name});
+  logAction("Yeni alan eklendi: "+key);
+  saveAll();buildCoreForm();buildTable();renderTable();
+});
+$("#btnSave").addEventListener("click",saveItem);
+$("#btnClear").addEventListener("click",clearItemForm);
+
+function collectItem(){
+  const flds=[...CORE_FIELDS,...extraFields];const obj={};
+  flds.forEach(f=>{const v=$("#f_"+f.key)?.value?.trim();obj[f.key]=v||"";});
+  if(obj.quantity)obj.quantity=Number(obj.quantity)||0;
+  return obj;
+}
+function saveItem(){
+  if(currentUser.role==="Viewer")return;
+  const data=collectItem();
+  if(!data.serial){alert("Seri No zorunlu.");return;}
+  if(editingIndex>-1){
+    items[editingIndex]={...items[editingIndex],...data};
+    logAction("Kayıt güncellendi: "+data.serial);
+  }else{
+    items.push(data);
+    logAction("Kayıt eklendi: "+data.serial);
+  }
+  saveAll();renderTable();clearItemForm();
+}
+function clearItemForm(){
+  editingIndex=-1;
+  [...CORE_FIELDS,...extraFields].forEach(f=>{const el=$("#f_"+f.key);if(el)el.value="";});
+}
+
+/* TABLE */
+function buildTable(){
+  const thead=$("#invHead");thead.innerHTML="";
+  const fields=[...CORE_FIELDS,...extraFields];
+  const tr=el("tr");
+  fields.forEach(f=>{tr.appendChild(el("th",null,f.label));});
+  tr.appendChild(el("th",null,"İşlem"));
+  thead.appendChild(tr);
+}
+function renderTable(){
+  const body=$("#invBody");body.innerHTML="";
+  const fields=[...CORE_FIELDS,...extraFields];
+  const q=$("#searchBox").value.toLowerCase().trim();
+  let filtered=items;
+  if(q){
+    filtered=items.filter(it=>fields.some(f=>(it[f.key]||"").toString().toLowerCase().includes(q)));
+  }
+  $("#invCount").textContent=filtered.length;
+  filtered.forEach((it,i)=>{
+    const tr=el("tr");
+    fields.forEach(f=>{
+      tr.appendChild(el("td",null,(it[f.key]||"")));
+    });
+    const td=el("td");
+    const be=el("button","outline","Düzenle");be.type="button";be.style.fontSize="12px";
+    be.addEventListener("click",()=>editRow(i));
+    const bd=el("button","danger","Sil");bd.type="button";bd.style.fontSize="12px";
+    bd.addEventListener("click",()=>deleteRow(i));
+    td.appendChild(be);td.appendChild(bd);tr.appendChild(td);
+    body.appendChild(tr);
+  });
+}
+function editRow(i){
+  editingIndex=i;
+  const data=items[i];
+  [...CORE_FIELDS,...extraFields].forEach(f=>{const inp=$("#f_"+f.key);if(inp)inp.value=data[f.key]||"";});
+  logAction("Kayıt düzenleme: "+data.serial);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function deleteRow(i){
+  if(currentUser.role==="Viewer")return;
+  if(!confirm("Silinsin mi?"))return;
+  const s=items[i].serial;
+  items.splice(i,1);
+  logAction("Kayıt silindi: "+s);
+  saveAll();renderTable();
+}
+$("#searchBox").addEventListener("input",renderTable);
+
+/* EXPORT / IMPORT */
+$("#btnExport").addEventListener("click",()=>{
+  const blob=new Blob([JSON.stringify({items,extraFields},null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="envanter_export.json";a.click();
+  logAction("Envanter dışa aktarıldı");
+});
+$("#btnImport").addEventListener("click",()=>$("#importFile").click());
+$("#importFile").addEventListener("change",e=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const json=JSON.parse(ev.target.result);
+      if(Array.isArray(json.items)){items=json.items;}
+      if(Array.isArray(json.extraFields)){extraFields=json.extraFields;}
+      saveAll();buildCoreForm();buildTable();renderTable();
+      logAction("Envanter içe aktarıldı");
+    }catch(err){alert("JSON hatalı: "+err.message);}
+  };
+  reader.readAsText(file);
+});
+
+/* USER MANAGEMENT */
+function buildUserForm(){
+  const cont=$("#userFormFields");cont.innerHTML="";
+  cont.appendChild(userField("user_username","Kullanıcı Adı"));
+  cont.appendChild(userField("user_password","Şifre","password",true)); // show toggle
+  cont.appendChild(roleField());
+  cont.appendChild(permsBlock());
+  renderUserList();resetUserForm();
+}
+function userField(id,label,type="text",withToggle=false){
+  const f=el("div","field");
+  f.appendChild(el("label",null,label));
+  if(withToggle){
+    const wrap=el("div",null);
+    wrap.style.position="relative";
+    const inp=el("input");inp.id=id;inp.type=type;inp.placeholder=label;
+    const tog=el("button","outline","Göster");
+    tog.type="button";
+    Object.assign(tog.style,{position:"absolute",top:"50%",right:"6px",transform:"translateY(-50%)",padding:"4px 10px",fontSize:"12px",minWidth:"auto"});
+    tog.addEventListener("click",()=>{
+      if(inp.type==="password"){inp.type="text";tog.textContent="Gizle";}
+      else{inp.type="password";tog.textContent="Göster";}
+    });
+    wrap.appendChild(inp);wrap.appendChild(tog);f.appendChild(wrap);
+  }else{
+    const i=el("input");i.id=id;i.type=type;i.placeholder=label;f.appendChild(i);
+  }
+  return f;
+}
+function roleField(){
+  const f=el("div","field");
+  f.appendChild(el("label",null,"Rol"));
+  const sel=el("select");sel.id="user_role";
+  ["Admin","Constructor","Viewer"].forEach(r=>{
+    const o=el("option",null,r);o.value=r;sel.appendChild(o);
+  });
+  sel.addEventListener("change",handleRoleChange);
+  f.appendChild(sel);
+  return f;
+}
+function permsBlock(){
+  const wrap=el("div","perms-block");
+  wrap.appendChild(el("div","perms-label","Yetkiler"));
+  const row=el("div","perms-row");
+  row.appendChild(permItem("perm_inventory","Envanter"));
+  row.appendChild(permItem("perm_logs","Loglar"));
+  row.appendChild(permItem("perm_users","Kullanıcı Yönetimi"));
+  wrap.appendChild(row);
+  wrap.appendChild(el("div","perm-hint","Rol Admin seçildiğinde tüm yetkiler otomatik aktif olur."));
+  return wrap;
+}
+function permItem(id,label){
+  const lbl=el("label","perm-item");
+  const cb=el("input");cb.type="checkbox";cb.id=id;
+  const box=el("span","perm-box","✓");
+  const text=el("span",null,label);
+  cb.addEventListener("change",()=>{lbl.dataset.checked=cb.checked?"true":"false";});
+  lbl.appendChild(cb);lbl.appendChild(box);lbl.appendChild(text);
+  return lbl;
+}
+function syncPermVisual(){
+  ["perm_inventory","perm_logs","perm_users"].forEach(id=>{
+    const cb=$("#"+id);if(!cb)return;
+    cb.parentElement.dataset.checked=cb.checked?"true":"false";
+    cb.parentElement.dataset.disabled=cb.disabled?"true":"false";
+  });
+}
+function handleRoleChange(){
+  const role=$("#user_role").value;
+  const ids=["perm_inventory","perm_logs","perm_users"];
+  if(role==="Admin"){
+    ids.forEach(i=>{const c=$("#"+i);c.checked=true;c.disabled=true;});
+  }else{
+    ids.forEach(i=>{const c=$("#"+i);c.disabled=false;});
+  }
+  syncPermVisual();
+}
+$("#btnSaveUser").addEventListener("click",saveUser);
+$("#btnResetUserForm").addEventListener("click",resetUserForm);
+function resetUserForm(){
+  editingUserIndex=-1;
+  $("#user_username").value="";
+  $("#user_password").value="";
+  $("#user_role").value="Viewer";
+  ["perm_inventory","perm_logs","perm_users"].forEach(id=>{const cb=$("#"+id);cb.checked=false;cb.disabled=false;});
+  updateUserMode(false);syncPermVisual();
+}
+function updateUserMode(edit){
+  $("#btnSaveUser").textContent=edit?"Kullanıcı Güncelle":"Kullanıcı Kaydet";
+  $("#btnSaveUser").classList.toggle("secondary",edit);
+}
+function saveUser(){
+  if(currentUser.role!=="Admin"){alert("Admin yetkisi gerekli.");return;}
+  const uname=$("#user_username").value.trim();
+  const pass=$("#user_password").value;
+  const role=$("#user_role").value;
+  if(!uname||!pass){alert("Kullanıcı adı ve şifre zorunlu.");return;}
+  const perms={
+    inventory:$("#perm_inventory").checked,
+    logs:$("#perm_logs").checked,
+    users:$("#perm_users").checked
+  };
+  if(role==="Admin")perms.inventory=perms.logs=perms.users=true;
+  if(editingUserIndex>-1){
+    users[editingUserIndex]={username:uname,password:pass,role,perms};
+    logAction("Kullanıcı güncellendi: "+uname);
+  }else{
+    if(users.find(u=>u.username===uname)){alert("Kullanıcı zaten var.");return;}
+    users.push({username:uname,password:pass,role,perms});
+    logAction("Kullanıcı oluşturuldu: "+uname);
+  }
+  saveAll();buildUserForm();resetUserForm();
+}
+function editUser(i){
+  editingUserIndex=i;const u=users[i];
+  $("#user_username").value=u.username;
+  $("#user_password").value=u.password;
+  $("#user_role").value=u.role;
+  ["perm_inventory","perm_logs","perm_users"].forEach(id=>{
+    const key=id.split("_")[1];$("#"+id).checked=u.perms[key];
+  });
+  handleRoleChange();updateUserMode(true);syncPermVisual();
+  logAction("Kullanıcı düzenleme: "+u.username);
+}
+function deleteUser(i){
+  if(currentUser.role!=="Admin"){alert("Silme için Admin gerekli.");return;}
+  if(users[i].username===currentUser.username){alert("Kendinizi silemezsiniz.");return;}
+  if(!confirm("Kullanıcı silinsin mi?"))return;
+  const name=users[i].username;
+  users.splice(i,1);logAction("Kullanıcı silindi: "+name);
+  saveAll();buildUserForm();resetUserForm();
+}
+function renderUserList(){
+  const body=$("#userListBody");body.innerHTML="";
+  users.forEach((u,i)=>{
+    const tr=el("tr");
+    tr.appendChild(el("td",null,u.username));
+    tr.appendChild(el("td",null,u.role));
+    tr.appendChild(el("td",null,Object.keys(u.perms).filter(k=>u.perms[k]).join(", ")||"-"));
+    const td=el("td");
+    const be=el("button","outline","Düzenle");be.type="button";be.style.fontSize="12px";be.addEventListener("click",()=>editUser(i));
+    const bd=el("button","danger","Sil");bd.type="button";bd.style.fontSize="12px";bd.addEventListener("click",()=>deleteUser(i));
+    td.appendChild(be);td.appendChild(bd);tr.appendChild(td);
+    body.appendChild(tr);
+  });
+}
+
+/* OPEN / CLOSE USER PANEL */
+$("#btnUserMgmt").addEventListener("click",()=>{
+  if(!currentUser.perms.users)return;
+  $("#userPanel").style.display="flex";
+  logAction("Kullanıcı yönetimi açıldı");
+});
+$("#closeUserPanel").addEventListener("click",closeUserPanel);
+$("#userBack").addEventListener("click",()=>{closeUserPanel();goHome();});
+function closeUserPanel(){ $("#userPanel").style.display="none"; }
+
+/* LOGS */
+$("#btnLogs").addEventListener("click",()=>{ if(currentUser.perms.logs) openLogs(); });
+$("#menuLogs").addEventListener("click",()=>{userMenu.classList.add("hidden"); if(currentUser.perms.logs) openLogs();});
+$("#closeLogs").addEventListener("click",closeLogs);
+$("#logsBack").addEventListener("click",()=>{closeLogs();goHome();});
+$("#btnClearLogs").addEventListener("click",()=>{
+  if(!confirm("Tüm loglar silinsin mi?"))return;
+  logs=[];saveAll();renderLogs();logAction("Log temizlendi");
+});
+$("#logSearch").addEventListener("input",renderLogs);
+function openLogs(){ $("#logPanel").style.display="flex";renderLogs();logAction("Log paneli açıldı"); }
+function closeLogs(){ $("#logPanel").style.display="none"; }
+function renderLogs(){
+  const list=$("#logList");list.innerHTML="";
+  const q=$("#logSearch").value.toLowerCase().trim();
+  const data=logs.slice().reverse().filter(l=>{
+    if(!q)return true;
+    return l.user.toLowerCase().includes(q) || l.action.toLowerCase().includes(q) || formatDate(l.ts).toLowerCase().includes(q);
+  });
+  if(!data.length){list.appendChild(el("li","log-empty","Log bulunmuyor."));return;}
+  data.forEach(l=>{
+    const li=el("li");
+    li.appendChild(el("div","log-time",formatDate(l.ts)));
+    li.appendChild(el("div","log-user",l.user));
+    li.appendChild(el("div","log-action",l.action));
+    list.appendChild(li);
+  });
+}
+
+/* GLOBAL */
+document.addEventListener("click",e=>{
+  document.querySelectorAll(".combo-list.open").forEach(l=>{
+    if(!l.contains(e.target)&&!l.parentNode.contains(e.target)) l.classList.remove("open");
+  });
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){
+    if($("#logPanel").style.display==="flex") closeLogs();
+    if($("#userPanel").style.display==="flex") closeUserPanel();
+  }
+});
+
+/* INIT */
+if(currentUser){
+  buildCoreForm();buildTable();renderTable();buildUserForm();enforcePermissions();
+}
+buildTable();
+renderTable();
+</script>
+</body>
+</html>
