@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", () => {
   const userPanel = document.getElementById("userPanel");
   const userListBody = document.getElementById("userListBody");
@@ -55,7 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadUsers() {
     try {
-      const res = await authorizedFetch(`${API_URL}/user`);
+      const filter = document.getElementById("userFilter")?.value || "active";
+
+      const res = await authorizedFetch(`${API_URL}/user?filter=${filter}`);
       if (!res.ok) {
         const err = await res.text();
         alert("Kullanıcılar alınamadı: " + err);
@@ -69,7 +70,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  document
+    .getElementById("userFilter")
+    ?.addEventListener("change", async () => {
+      await loadUsers();
+    });
+
   function renderUserList(users) {
+    userListBody.innerHTML = "";
+
     const roleMap = {
       1: "Admin",
       2: "Constructor",
@@ -79,9 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
       Viewer: "Viewer",
     };
 
-    userListBody.innerHTML = "";
     users.forEach((u) => {
       const tr = document.createElement("tr");
+
+      if (!u.isActive) tr.classList.add("inactive-row");
 
       tr.innerHTML = `
       <td>${u.username}</td>
@@ -93,16 +103,28 @@ document.addEventListener("DOMContentLoaded", () => {
       </td>
       <td>
         <div class="user-actions">
-          <button class="icon-btn outline" data-id="${
-            u.id
-          }" data-action="edit" title="Düzenle">
-            <img src="images/edit.png" alt="Düzenle">
-          </button>
-          <button class="icon-btn danger" data-id="${
-            u.id
-          }" data-action="delete" title="Sil">
-            <img src="images/trash.png" alt="Sil">
-          </button>
+
+          ${
+            u.isActive
+              ? `
+                <!-- 🔵 Düzenle -->
+                <button class="icon-btn edit" data-id="${u.id}" data-action="edit" title="Düzenle">
+                  <img src="images/edit.png"/>
+                </button>
+
+                <!-- 🔴 Sil -->
+                <button class="icon-btn danger" data-id="${u.id}" data-action="passive" title="Sil">
+                  <img src="images/trash.png"/>
+                </button>
+              `
+              : `
+                <!-- ♻️ Geri Yükle -->
+                <button class="icon-btn restore" data-id="${u.id}" data-action="restore" title="Geri Yükle">
+                  <img src="images/reset.png"/>
+                </button>
+              `
+          }
+
         </div>
       </td>
     `;
@@ -110,23 +132,29 @@ document.addEventListener("DOMContentLoaded", () => {
       userListBody.appendChild(tr);
     });
 
-    // 🔹 Silme olayları
+    // --- EVENTLER ---
     userListBody
-      .querySelectorAll("button[data-action='delete']")
-      .forEach((btn) => {
-        btn.addEventListener("click", () => deleteUser(btn.dataset.id));
-      });
+      .querySelectorAll("button[data-action='passive']")
+      .forEach((btn) =>
+        btn.addEventListener("click", () => passiveUser(btn.dataset.id))
+      );
 
-    // 🔹 Düzenleme olayları
+    userListBody
+      .querySelectorAll("button[data-action='restore']")
+      .forEach((btn) =>
+        btn.addEventListener("click", () => restoreUser(btn.dataset.id))
+      );
+
     userListBody
       .querySelectorAll("button[data-action='edit']")
-      .forEach((btn) => {
-        btn.addEventListener("click", () => editUser(btn.dataset.id));
-      });
+      .forEach((btn) =>
+        btn.addEventListener("click", () => editUser(btn.dataset.id))
+      );
   }
 
-  async function deleteUser(id) {
-    if (!confirm("Kullanıcı silinsin mi?")) return;
+  async function passiveUser(id) {
+    if (!confirm("Kullanıcı pasife alınsın mı?")) return;
+
     try {
       const res = await authorizedFetch(`${API_URL}/user/${id}`, {
         method: "DELETE",
@@ -134,14 +162,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!res.ok) {
         const err = await res.text();
-        alert("Silme başarısız: " + err);
+        alert("İşlem başarısız: " + err);
         return;
       }
-      alert("Kullanıcı silindi.");
+
+      alert("Kullanıcı pasife alındı.");
+      await loadUsers();
+    } catch (e) {
+      alert("Sunucu hatası.");
+    }
+  }
+
+  async function restoreUser(id) {
+    if (!confirm("Kullanıcı tekrar aktif hale getirilsin mi?")) return;
+
+    try {
+      const res = await authorizedFetch(`${API_URL}/user/${id}/restore`, {
+        method: "PATCH",
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        alert("İşlem başarısız: " + err);
+        return;
+      }
+
+      alert("Kullanıcı aktifleştirildi.");
       await loadUsers();
     } catch (err) {
-      console.error("deleteUser error:", err);
-      alert("Sunucuya bağlanılamadı.");
+      alert("Sunucu hatası.");
     }
   }
 

@@ -1,5 +1,3 @@
-
-
 document.addEventListener("DOMContentLoaded", () => {
   const cache = {};
 
@@ -162,7 +160,8 @@ document.addEventListener("DOMContentLoaded", () => {
       else if (filter === "active")
         filteredData = data.filter((d) => d.isActive);
 
-      window.currentData = filteredData;
+      window.currentData = data; // Tüm veriyi tut
+      window.filteredData = filteredData; // Sadece aktif/pasif filtrelenmiş veriyi tut
 
       renderTable(filteredData);
     } catch (e) {
@@ -251,7 +250,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       alert("Envanter pasif hale getirildi.");
-      await loadInventories();
+
+      await loadInventories(); // ✔ tabloyu günceller // ❗ burada başka hiçbir şey OLMAYACAK
     } catch (e) {
       console.error("deleteInventory error:", e);
     }
@@ -320,39 +320,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function buildTableHead() {
     invHead.innerHTML = "";
-    const tr = document.createElement("tr");
+    const tr = document.createElement("tr"); // Çoklu seçim sütunu
+
+    const thBulk = document.createElement("th");
+    thBulk.className = "bulk-col hidden";
+    thBulk.innerHTML = `<input type="checkbox" id="chkSelectAll">`;
+    tr.appendChild(thBulk);
 
     formFields.forEach((f) => {
       const th = document.createElement("th");
       th.textContent = fieldLabels[f] || f;
       th.style.cursor = "pointer";
-      th.dataset.sort = "none";
+      th.dataset.sort = "none"; // 🔹 Başlığa tıklayınca sıralama yap
 
-      // 🔹 Başlığa tıklayınca sıralama yap
       th.addEventListener("click", () => {
         const currentSort = th.dataset.sort;
-        let newSort;
+        let newSort; // 🧠 Sıralama döngüsü: none → asc → desc → none
 
-        // 🧠 Sıralama döngüsü: none → asc → desc → none
         if (currentSort === "none") newSort = "asc";
         else if (currentSort === "asc") newSort = "desc";
         else newSort = "none";
 
-        th.dataset.sort = newSort;
+        th.dataset.sort = newSort; // Diğer başlıkların sort durumlarını sıfırla
 
-        // Diğer başlıkların sort durumlarını sıfırla
         invHead.querySelectorAll("th").forEach((h) => {
           if (h !== th) h.dataset.sort = "none";
-        });
+        }); // 🧹 Eğer sıralama none olduysa orijinal veriyi geri getir
 
-        // 🧹 Eğer sıralama none olduysa orijinal veriyi geri getir
         if (newSort === "none") {
-          renderTable(window.currentData);
+          renderTable(window.filteredData);
           return;
-        }
+        } // 🔽 Veriyi sırala
 
-        // 🔽 Veriyi sırala
-        const sortedData = [...window.currentData].sort((a, b) => {
+        const sortedData = [...window.filteredData].sort((a, b) => {
           const valA = a[f] ?? "";
           const valB = b[f] ?? "";
 
@@ -418,9 +418,8 @@ document.addEventListener("DOMContentLoaded", () => {
       wrapper.appendChild(btn);
       wrapper.appendChild(dropdown);
       td.appendChild(wrapper);
-      tr.appendChild(td);
+      tr.appendChild(td); // 🔹 Distinct değerleri API'den çek
 
-      // 🔹 Distinct değerleri API'den çek
       try {
         const res = await authorizedFetch(
           `${API_URL}/inventory/distinct/${f.toLowerCase()}`
@@ -458,10 +457,8 @@ document.addEventListener("DOMContentLoaded", () => {
       document.addEventListener("click", (e) => {
         if (!wrapper.contains(e.target)) dropdown.classList.remove("open");
       });
-    }
+    } // 🔹 İşlem sütunu boşluğu yerine "Filtreleri Kaldır" butonu // 🔹 İşlem sütunu boşluğu yerine "Filtreleri Kaldır" butonu
 
-    // 🔹 İşlem sütunu boşluğu yerine "Filtreleri Kaldır" butonu
-    // 🔹 İşlem sütunu boşluğu yerine "Filtreleri Kaldır" butonu
     const tdClear = document.createElement("td");
     tdClear.style.textAlign = "center";
 
@@ -490,24 +487,21 @@ document.addEventListener("DOMContentLoaded", () => {
       // 🔸 Tüm checkbox'ları temizle
       document
         .querySelectorAll(".filter-multi input[type='checkbox']")
-        .forEach((cb) => (cb.checked = false));
+        .forEach((cb) => (cb.checked = false)); // 🔸 Tüm buton metinlerini sıfırla
 
-      // 🔸 Tüm buton metinlerini sıfırla
       document.querySelectorAll(".filter-select").forEach((b) => {
         b.textContent = "-- Tümü ▼";
-      });
+      }); // 🔸 Tabloyu sıfırla
 
-      // 🔸 Tabloyu sıfırla
-      renderTable(window.currentData);
+      renderTable(window.filteredData);
     });
 
     tdClear.appendChild(clearBtn);
     tr.appendChild(tdClear);
 
     invHead.appendChild(tr);
-  }
+  } // 🔹 Dropdown konumunu dinamik belirle (yukarı/aşağı)
 
-  // 🔹 Dropdown konumunu dinamik belirle (yukarı/aşağı)
   function positionFilterDropdown(dropdown) {
     const btn = dropdown.previousElementSibling;
     const container = document.querySelector(".table-container");
@@ -519,15 +513,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const dropHeight = Math.min(dropdown.scrollHeight || 220, 220) + 12;
 
     const spaceBelow = cRect.bottom - bRect.bottom;
-    const spaceAbove = bRect.top - cRect.top;
+    const spaceAbove = bRect.top - cRect.top; // YUKARI AÇILMA kontrolü
 
-    // YUKARI AÇILMA kontrolü
     dropdown.classList.toggle(
       "open-up",
       spaceBelow < dropHeight && spaceAbove > spaceBelow
-    );
+    ); // SAĞA taşma kontrolü
 
-    // SAĞA taşma kontrolü
     const dRect = dropdown.getBoundingClientRect();
     const overflowRight = dRect.right - cRect.right;
     const overflowLeft = cRect.left - dRect.left;
@@ -549,9 +541,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function applyDropdownFilters() {
-    const filters = {};
+    const filters = {}; // 🔹 Her dropdown içindeki seçili checkbox’ları topla
 
-    // 🔹 Her dropdown içindeki seçili checkbox’ları topla
     document.querySelectorAll(".filter-multi").forEach((fm) => {
       const fieldIndex = fm.closest("td").cellIndex;
       const field = Object.keys(fieldLabels)[fieldIndex];
@@ -562,30 +553,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (Object.keys(filters).length === 0) {
-      renderTable(window.currentData);
+      renderTable(window.filteredData);
       return;
     }
 
-    const filtered = window.currentData.filter((item) => {
+    const filtered = window.filteredData.filter((item) => {
       return Object.entries(filters).every(([f, values]) => {
         const rawVal = item[f];
-        if (rawVal == null) return false;
+        if (rawVal == null) return false; // 🔹 Status için özel eşleştirme
 
-        // 🔹 Status için özel eşleştirme
         if (f.toLowerCase() === "status") {
           const label = getStatusLabel(rawVal).toLowerCase();
           return values.some((v) => {
-            const valLower = v.toLowerCase();
-            // Eğer cb.value sayısal ya da metin olabilir — ikisini de kontrol et
+            const valLower = v.toLowerCase(); // Eğer cb.value sayısal ya da metin olabilir — ikisini de kontrol et
             return (
               label.includes(valLower) ||
               getStatusLabel(v)?.toLowerCase() === label ||
               v == rawVal.toString()
             );
           });
-        }
+        } // 🔹 Diğer alanlar
 
-        // 🔹 Diğer alanlar
         const itemVal = rawVal.toString().toLowerCase();
         return values.some((v) => itemVal.includes(v.toLowerCase()));
       });
@@ -632,10 +620,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderTable(data) {
     invBody.innerHTML = "";
     const q = searchBox.value.toLowerCase().trim();
-    let filtered = data;
+    let filtered = data; // 💡 Arama yapıldığında sayfayı sıfırla
 
     if (q) {
       filtered = data.filter((d) => deepSearch(d, q));
+      currentPage = 1;
     }
 
     invCount.textContent = filtered.length;
@@ -644,7 +633,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (filtered.length === 0) {
       const tr = document.createElement("tr");
       const td = document.createElement("td");
-      td.colSpan = formFields.length + 1; // +1 = işlem sütunu
+      td.colSpan = formFields.length + 1;
       td.textContent = "Kayıt bulunamadı.";
       td.style.textAlign = "center";
       td.style.padding = "20px";
@@ -660,12 +649,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     filtered.forEach((it) => {
-      const tr = document.createElement("tr");
+      const tr = document.createElement("tr"); // Çoklu seçim hücresi: bulkMode değişkenine göre dinamik sınıf ataması
+      const tdBulk = document.createElement("td");
+      tdBulk.className = bulkMode ? "bulk-col" : "bulk-col hidden";
+      tdBulk.innerHTML = `<input type="checkbox" class="chkBulk" value="${it.id}">`;
+      tr.appendChild(tdBulk);
+
       if (!it.isActive) tr.classList.add("inactive-row");
 
       formFields.forEach((f) => {
         const td = document.createElement("td");
         let value = it[f] ?? "";
+
+        if (f === "description") {
+          const full = value || "";
+          const short = full.length > 40 ? full.substring(0, 40) : full;
+
+          td.innerHTML = `
+    <div class="desc-short">
+      ${short}${full.length > 40 ? "..." : ""}
+      ${
+            full.length > 40
+              ? `<span class="desc-more" data-full="${full.replace(
+                  /"/g,
+                  "&quot;"
+                )}"> ...Devamını Gör</span>`
+              : ""
+          }
+    </div>
+  `;
+          tr.appendChild(td);
+          return;
+        }
 
         if (
           f === "stockInDate" ||
@@ -689,9 +704,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const tdAction = document.createElement("td");
-      const role = window.currentUser?.role?.toLowerCase();
+      const role = window.currentUser?.role?.toLowerCase(); // 🔹 DÜZENLE
 
-      // 🔹 DÜZENLE
       if (role === "admin" || role === "constructor") {
         const be = document.createElement("button");
         be.className = "icon-btn outline edit";
@@ -699,9 +713,8 @@ document.addEventListener("DOMContentLoaded", () => {
         be.innerHTML = `<img src="images/edit.png" alt="Düzenle">`;
         be.addEventListener("click", () => editInventory(it.id));
         tdAction.appendChild(be);
-      }
+      } // 🔹 SİL veya GERİ YÜKLE
 
-      // 🔹 SİL veya GERİ YÜKLE
       if (role === "admin") {
         const bd = document.createElement("button");
         bd.className = "icon-btn";
@@ -718,9 +731,8 @@ document.addEventListener("DOMContentLoaded", () => {
           it.isActive ? deleteInventory(it.id) : restoreInventory(it.id)
         );
         tdAction.appendChild(bd);
-      }
+      } // 🔹 TARİHÇE
 
-      // 🔹 TARİHÇE
       const bh = document.createElement("button");
       bh.className = "icon-btn outline";
       bh.title = "Tarihçe";
@@ -731,9 +743,24 @@ document.addEventListener("DOMContentLoaded", () => {
       tr.appendChild(tdAction);
       allRows.push(tr);
     });
-
-    currentPage = 1;
     renderTablePage();
+    bindSelectAllEvent();
+  }
+
+  function bindSelectAllEvent() {
+    const chkAll = document.getElementById("chkSelectAll");
+    if (!chkAll) return;
+
+    chkAll.onchange = () => {
+      const checked = chkAll.checked;
+
+      allRows.forEach((row) => {
+        const cb = row.querySelector(".chkBulk");
+        if (cb) cb.checked = checked;
+      });
+
+      renderTablePage();
+    };
   }
 
   function renderTablePage() {
@@ -781,7 +808,7 @@ document.addEventListener("DOMContentLoaded", () => {
   btnSave.addEventListener("click", saveInventory);
   btnClear.addEventListener("click", resetForm);
   searchBox.addEventListener("input", () =>
-    renderTable(window.currentData || [])
+    renderTable(window.filteredData || [])
   );
 
   document
@@ -874,9 +901,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  buildTableHead();
+  buildTableHead(); // 🔹 Filtre dropdown pozisyonlarını güncel tut
 
-  // 🔹 Filtre dropdown pozisyonlarını güncel tut
   const tableContainer = document.querySelector(".table-container");
 
   if (tableContainer) {
@@ -886,13 +912,260 @@ document.addEventListener("DOMContentLoaded", () => {
         .querySelectorAll(".multi-dropdown.open")
         .forEach((d) => positionFilterDropdown(d));
     });
-  }
+  } // Pencere yeniden boyutlandığında da konumu düzelt
 
-  // Pencere yeniden boyutlandığında da konumu düzelt
   window.addEventListener("resize", () => {
     document
       .querySelectorAll(".multi-dropdown.open")
       .forEach((d) => positionFilterDropdown(d));
+  });
+
+  window.addEventListener("userChanged", () => {
+    if (window.currentUser) loadInventories();
+    else {
+      invBody.innerHTML = "";
+      invCount.textContent = "0";
+    }
+  }); // ----------------------------- // 📌 Çoklu Silme Modu // -----------------------------
+
+  let bulkMode = false;
+
+  const bulkModeBtn = document.getElementById("bulkModeBtn");
+  const bulkDeleteBtn = document.getElementById("bulkDeleteBtn");
+  const bulkCancelBtn = document.getElementById("bulkCancelBtn");
+  const bulkRestoreBtn = document.getElementById("bulkRestoreBtn"); // 💡 YENİ BUTON REFERANSLARI
+
+  const btnDeleteAllActive = document.getElementById("btnDeleteAllActive");
+  const btnRestoreAllInactive = document.getElementById(
+    "btnRestoreAllInactive"
+  );
+
+  bulkModeBtn?.addEventListener("click", () => {
+    bulkMode = true;
+
+    document
+      .querySelectorAll(".bulk-col")
+      .forEach((x) => x.classList.remove("hidden"));
+    bulkDeleteBtn?.classList.remove("hidden");
+    bulkCancelBtn?.classList.remove("hidden");
+    bulkModeBtn?.classList.add("hidden");
+    bulkRestoreBtn?.classList.remove("hidden");
+  });
+
+  bulkCancelBtn?.addEventListener("click", () => {
+    bulkMode = false;
+
+    document
+      .querySelectorAll(".bulk-col")
+      .forEach((x) => x.classList.add("hidden"));
+
+    bulkDeleteBtn?.classList.add("hidden");
+    bulkCancelBtn?.classList.add("hidden");
+    bulkRestoreBtn?.classList.add("hidden");
+
+    bulkModeBtn?.classList.remove("hidden");
+
+    document.querySelectorAll(".chkBulk").forEach((cb) => (cb.checked = false));
+    const all = document.getElementById("chkSelectAll");
+    if (all) all.checked = false;
+  });
+
+  bulkDeleteBtn?.addEventListener("click", async () => {
+    const selectedIds = [...document.querySelectorAll(".chkBulk:checked")].map(
+      (x) => x.value
+    );
+
+    if (selectedIds.length === 0) {
+      alert("Hiçbir kayıt seçilmedi!");
+      return;
+    } // Durum kontrolü: Pasif olanları engelle
+
+    const selectedItems = (window.currentData || []).filter((item) =>
+      selectedIds.includes(item.id.toString())
+    );
+    const inactiveCount = selectedItems.filter((item) => !item.isActive).length;
+
+    if (inactiveCount > 0) {
+      alert(
+        `${inactiveCount} adet kayıt zaten pasif durumda. Lütfen sadece aktif kayıtları pasife alın.`
+      );
+      return;
+    }
+
+    if (
+      !confirm(
+        `${selectedIds.length} aktif kayıt pasife alınacak. Onaylıyor musun?`
+      )
+    )
+      return;
+
+    for (const id of selectedIds) {
+      await authorizedFetch(`${API_URL}/inventory/${id}`, {
+        method: "DELETE",
+      });
+    }
+
+    alert("Seçilen kayıtlar pasif hale getirildi.");
+
+    await loadInventories();
+    bulkCancelBtn?.click();
+  });
+
+  bulkRestoreBtn?.addEventListener("click", async () => {
+    const selectedIds = [...document.querySelectorAll(".chkBulk:checked")].map(
+      (x) => x.value
+    );
+
+    if (selectedIds.length === 0) {
+      alert("Hiçbir kayıt seçilmedi!");
+      return;
+    } // Durum kontrolü: Aktif olanları engelle
+
+    const selectedItems = (window.currentData || []).filter((item) =>
+      selectedIds.includes(item.id.toString())
+    );
+    const activeCount = selectedItems.filter((item) => item.isActive).length;
+
+    if (activeCount > 0) {
+      alert(
+        `${activeCount} adet kayıt zaten aktif durumda. Lütfen sadece pasif kayıtları geri yükleyin.`
+      );
+      return;
+    }
+
+    if (
+      !confirm(
+        `${selectedIds.length} pasif kayıt geri yüklenecek. Onaylıyor musun?`
+      )
+    )
+      return;
+
+    for (const id of selectedIds) {
+      const res = await authorizedFetch(`${API_URL}/inventory/${id}/restore`, {
+        method: "PATCH",
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        console.error("Bulk restore error:", err);
+      }
+    }
+
+    alert("Seçilen kayıtlar geri yüklendi.");
+
+    await loadInventories();
+    bulkCancelBtn?.click();
+  });
+
+  // 💡 YENİ EKLEME (2): TÜM AKTİFLERİ SİLME İŞLEMİ (Sayfalama Dışı)
+  // 💡 GÜNCELLENMİŞ EKLEME: TÜM AKTİFLERİ SİLME İŞLEMİ (Looping)
+  btnDeleteAllActive?.addEventListener("click", async () => {
+    const role = window.currentUser?.role?.toLowerCase();
+    if (role !== "admin") {
+      alert("Bu işlemi yapmaya yetkiniz yok.");
+      return;
+    }
+
+    // Yalnızca aktif kayıtların ID'lerini topla
+    const activeItems = (window.currentData || []).filter((d) => d.isActive);
+    const activeCount = activeItems.length;
+
+    if (activeCount === 0) {
+      alert("Silinecek aktif kayıt bulunmamaktadır.");
+      return;
+    }
+
+    if (
+      !confirm(
+        `Tüm tablodaki ${activeCount} adet aktif kayıt pasif hale getirilecek. Bu işlem geri alınamaz. Onaylıyor musun?`
+      )
+    )
+      return;
+
+    let successCount = 0;
+
+    // Her bir aktif öğe için tekil DELETE çağrısı yap
+    for (const item of activeItems) {
+      try {
+        // ÇALIŞAN TEKİL URL'i kullan: DELETE /inventory/{id}
+        const res = await authorizedFetch(`${API_URL}/inventory/${item.id}`, {
+          method: "DELETE",
+        });
+        if (res.ok) {
+          successCount++;
+        } else {
+          console.error(
+            `Pasif yapma hatası ID ${item.id}: ${await res.text()}`
+          );
+        }
+      } catch (e) {
+        console.error(`Fetch hatası ID ${item.id}:`, e);
+      }
+    }
+
+    if (successCount > 0) {
+      alert(`${successCount} adet aktif kayıt başarıyla pasif hale getirildi.`);
+    } else {
+      alert("Tüm aktif kayıtlar pasif hale getirilirken hata oluştu.");
+    }
+    await loadInventories();
+  });
+
+  // 💡 YENİ EKLEME (3): TÜM PASİFLERİ GERİ YÜKLEME İŞLEMİ (Sayfalama Dışı)
+  // 💡 GÜNCELLENMİŞ EKLEME: TÜM PASİFLERİ GERİ YÜKLEME İŞLEMİ (Looping)
+  btnRestoreAllInactive?.addEventListener("click", async () => {
+    const role = window.currentUser?.role?.toLowerCase();
+    if (role !== "admin") {
+      alert("Bu işlemi yapmaya yetkiniz yok.");
+      return;
+    }
+
+    // Yalnızca pasif kayıtların ID'lerini topla
+    const inactiveItems = (window.currentData || []).filter((d) => !d.isActive);
+    const inactiveCount = inactiveItems.length;
+
+    if (inactiveCount === 0) {
+      alert("Geri yüklenecek pasif kayıt bulunmamaktadır.");
+      return;
+    }
+
+    if (
+      !confirm(
+        `Tüm tablodaki ${inactiveCount} adet pasif kayıt geri yüklenecek. Onaylıyor musun?`
+      )
+    )
+      return;
+
+    let successCount = 0;
+
+    // Her bir pasif öğe için tekil PATCH çağrısı yap
+    for (const item of inactiveItems) {
+      try {
+        // ÇALIŞAN TEKİL URL'i kullan: PATCH /inventory/{id}/restore
+        const res = await authorizedFetch(
+          `${API_URL}/inventory/${item.id}/restore`,
+          {
+            method: "PATCH",
+          }
+        );
+        if (res.ok) {
+          successCount++;
+        } else {
+          console.error(
+            `Geri yükleme hatası ID ${item.id}: ${await res.text()}`
+          );
+        }
+      } catch (e) {
+        console.error(`Fetch hatası ID ${item.id}:`, e);
+      }
+    }
+
+    if (successCount > 0) {
+      alert(`${successCount} adet pasif kayıt başarıyla geri yüklendi.`);
+    } else {
+      alert("Tüm pasif kayıtlar geri yüklenirken hata oluştu.");
+    }
+    await loadInventories();
   });
 
   if (window.currentUser) loadInventories();
@@ -904,6 +1177,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
 function getStatusLabel(value) {
   if (typeof value === "string") {
     const lower = value.toLowerCase();
@@ -983,56 +1257,56 @@ async function viewHistory(id) {
       table.className = "history-table";
 
       table.innerHTML = `
-        <thead>
-          <tr>
-            <th>İşlem</th>
-            <th>Kullanıcı</th>
-            <th>Tarih</th>
-            <th>Seri No</th>
-            <th>Marka</th>
-            <th>Malzeme Adı</th>
-            <th>Grup</th>
-            <th>Model</th>
-            <th>Durum</th>
-            <th>Stok Giriş</th>
-            <th>Stok Çıkış</th>
-            <th>Açıklama</th>
-            <th>Tahsis Edilen Proje</th>
-            <th>Tahsis Edilen Kişi</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      `;
+        <thead>
+          <tr>
+            <th>İşlem</th>
+            <th>Kullanıcı</th>
+            <th>Tarih</th>
+            <th>Seri No</th>
+            <th>Marka</th>
+            <th>Malzeme Adı</th>
+            <th>Grup</th>
+            <th>Model</th>
+            <th>Durum</th>
+            <th>Stok Giriş</th>
+            <th>Stok Çıkış</th>
+            <th>Açıklama</th>
+            <th>Tahsis Edilen Proje</th>
+            <th>Tahsis Edilen Kişi</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
 
       const tbody = table.querySelector("tbody");
 
       history.forEach((h) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${h.actionType}</td>
-          <td>${h.changedBy || ""}</td>
-          <td>${new Date(h.changedAt).toLocaleString()}</td>
-          <td>${h.serialNumber || ""}</td>
-          <td>${h.brand || ""}</td>
-          <td>${h.itemName || ""}</td>
-          <td>${h.itemGroup || ""}</td>
-          <td>${h.model || ""}</td>
-          <td>${getStatusLabel(h.status)}</td>
-          <td>${
-            h.stockInDate
-              ? new Date(h.stockInDate).toLocaleDateString("tr-TR")
-              : ""
-          }</td>
-          <td>${
-            h.stockOutDate
-              ? new Date(h.stockOutDate).toLocaleDateString("tr-TR")
-              : ""
-          }</td>
+          <td>${h.actionType}</td>
+          <td>${h.changedBy || ""}</td>
+          <td>${new Date(h.changedAt).toLocaleString()}</td>
+          <td>${h.serialNumber || ""}</td>
+          <td>${h.brand || ""}</td>
+          <td>${h.itemName || ""}</td>
+          <td>${h.itemGroup || ""}</td>
+          <td>${h.model || ""}</td>
+          <td>${getStatusLabel(h.status)}</td>
+          <td>${
+          h.stockInDate
+            ? new Date(h.stockInDate).toLocaleDateString("tr-TR")
+            : ""
+        }</td>
+          <td>${
+          h.stockOutDate
+            ? new Date(h.stockOutDate).toLocaleDateString("tr-TR")
+            : ""
+        }</td>
 
-          <td>${h.description || ""}</td>
-          <td>${h.assignedProject || ""}</td>
-          <td>${h.assignedPerson || ""}</td>
-        `;
+          <td>${h.description || ""}</td>
+          <td>${h.assignedProject || ""}</td>
+          <td>${h.assignedPerson || ""}</td>
+        `;
         tbody.appendChild(tr);
       });
 
@@ -1064,16 +1338,41 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("click", (e) => {
     // Sadece inventory-wrapper içindeki tıklamaları dinle
     if (!document.querySelector(".inventory-wrapper")?.contains(e.target))
-      return;
+      return; // Sadece Düzenle butonunu hedefle
 
-    // Sadece Düzenle butonunu hedefle
     const btn = e.target.closest(".icon-btn.edit");
-    if (!btn) return;
+    if (!btn) return; // Panel kapalıysa aç
 
-    // Panel kapalıysa aç
     if (panel.classList.contains("collapsed")) {
       panel.classList.remove("collapsed");
       wrapper.classList.remove("panel-collapsed");
     }
   });
+});
+const descModal = document.createElement("div");
+descModal.id = "descModal";
+descModal.className = "desc-modal hidden";
+descModal.innerHTML = `
+  <div class="desc-modal-content">
+    <h3>Açıklama</h3>
+    <div id="descModalText" class="desc-text"></div>
+    <button id="descCloseBtn" class="outline" style="margin-top:12px;">Kapat</button>
+  </div>
+`;
+document.body.appendChild(descModal);
+
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("desc-more")) {
+    const fullText = e.target.dataset.full;
+    document.getElementById("descModalText").textContent = fullText;
+    descModal.classList.remove("hidden");
+  }
+});
+
+document.getElementById("descCloseBtn")?.addEventListener("click", () => {
+  descModal.classList.add("hidden");
+});
+
+descModal.addEventListener("click", (e) => {
+  if (e.target.id === "descModal") descModal.classList.add("hidden");
 });

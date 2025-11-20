@@ -304,6 +304,62 @@
                   accept=".xlsx,.xls"
                   style="display: none"
                 />
+                <button
+                  id="bulkModeBtn"
+                  class="outline"
+                  style="font-size: 13px; margin-left: 10px"
+                >
+                  Çoklu Seçim
+                </button>
+
+                <button
+                  id="bulkDeleteBtn"
+                  class="danger hidden"
+                  style="font-size: 13px; margin-left: 10px"
+                >
+                  Seçilenleri Sil
+                </button>
+
+                <button
+                  id="bulkRestoreBtn"
+                  class="outline hidden"
+                  style="font-size: 13px; margin-left: 10px"
+                >
+                  Seçilenleri Geri Yükle
+                </button>
+                <button
+                  id="bulkCancelBtn"
+                  class="secondary hidden"
+                  style="font-size: 13px; margin-left: 10px"
+                >
+                  İptal
+                </button>
+
+                <button
+                  id="btnDeleteAllActive"
+                  class="danger"
+                  style="
+                    font-size: 13px;
+                    margin-left: 20px;
+                    border: 1px solid #dc3545;
+                  "
+                  title="Tüm aktif kayıtları pasif hale getirir"
+                >
+                  Tüm Aktifleri Sil
+                </button>
+
+                <button
+                  id="btnRestoreAllInactive"
+                  class="outline"
+                  style="
+                    font-size: 13px;
+                    margin-left: 10px;
+                    border-color: var(--brand1);
+                  "
+                  title="Tüm pasif kayıtları aktif hale getirir"
+                >
+                  Tüm Pasifleri Geri Yükle
+                </button>
               </div>
             </div>
 
@@ -425,12 +481,24 @@
           </div>
 
           <h3 style="margin: 4px 0 2px; font-size: 18px">Kullanıcı Listesi</h3>
+          <div
+            style="display: flex; justify-content: flex-end; margin: 6px 0 10px"
+          >
+            <select id="userFilter" class="outline" style="padding: 8px 10px">
+              <option value="active" selected>Aktif Kullanıcılar</option>
+              <option value="inactive">Pasif Kullanıcılar</option>
+              <option value="all">Tüm Kullanıcılar</option>
+            </select>
+          </div>
 
           <div
-            class="table-container"
+            class="table-container user-table-scroll"
             style="border-radius: 18px; margin-top: -6px"
           >
-            <table class="user-table" style="min-width: 600px">
+            <table
+              class="user-table compact-user-table"
+              style="min-width: 600px; width: 100%"
+            >
               <thead>
                 <tr>
                   <th>Kullanıcı</th>
